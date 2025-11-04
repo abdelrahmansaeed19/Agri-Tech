@@ -39,7 +39,7 @@ namespace AgriculturalTech.API.Services.Implementations
 
         public async Task SendVerificationCode(ApplicationUser user)
         {
-            var code = new Random().Next(100000, 999999).ToString();
+            var code = new Random().Next(1000, 9999).ToString();
 
             await _userManager.SetAuthenticationTokenAsync(user, TokenOptions.DefaultProvider, "Code", code);
 
