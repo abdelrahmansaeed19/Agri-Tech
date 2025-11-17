@@ -9,6 +9,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
+
 namespace AgriculturalTech.API.Controllers
 {
     [Route("api/[controller]")]
@@ -79,6 +80,48 @@ namespace AgriculturalTech.API.Controllers
                 var token = GenerateJwtToken(user);
 
                 return Ok(ApiResponse<string>.SuccessResponse(token, "Email verified successfully."));
+            }
+
+            return BadRequest(ApiResponse<string>.ErrorResponse("Invalid verification code."));
+        }
+
+        [HttpPost("forget-password-code")]
+        public async Task<ActionResult<ApiResponse<string>>> ForgotPassword([FromBody] ForgotPasswordDto model)
+        {
+            var user = await _userManager.FindByEmailAsync(model.Email);
+            if (user == null)
+                return NotFound(ApiResponse<string>.ErrorResponse("User not found."));
+
+            await _emailSender.SendVerificationCode(user);
+
+            return Ok(ApiResponse<string>.SuccessResponse("", "Reset code sent successfully"));
+
+        }
+
+
+        [HttpPost("reset-password")]
+        public async Task<ActionResult<ApiResponse<string>>> ResetPassword([FromBody] ResetPasswordDto model)
+        {
+            var user = await _userManager.FindByEmailAsync(model.Email);
+            if (user == null)
+                return NotFound(ApiResponse<string>.ErrorResponse("User not found."));
+
+            string hashedPass = BCrypt.Net.BCrypt.HashPassword(model.NewPassword);
+
+            if (hashedPass == user.PasswordHash)
+                return BadRequest(ApiResponse<string>.ErrorResponse("Password already exists."));
+
+            var isVerified = await _emailSender.VerifyCode(user, model.Code);
+
+            if (isVerified)
+            {
+                user.PasswordHash = _userManager.PasswordHasher.HashPassword(user, model.NewPassword);
+
+                await _userManager.UpdateAsync(user);
+
+                var token = GenerateJwtToken(user);
+
+                return Ok(ApiResponse<string>.SuccessResponse(token, "Password Reset successfully."));
             }
 
             return BadRequest(ApiResponse<string>.ErrorResponse("Invalid verification code."));

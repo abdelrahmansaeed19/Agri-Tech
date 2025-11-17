@@ -8,7 +8,7 @@ namespace AgriculturalTech.API.Services.Implementations
 {
     public interface IExtendedEmailSender : IEmailSender
     {
-        Task SendVerificationCode(ApplicationUser user);
+        Task SendVerificationCode(ApplicationUser user, string codeType = "");
         Task<bool> VerifyCode(ApplicationUser user, string code);
     }
 
@@ -37,17 +37,29 @@ namespace AgriculturalTech.API.Services.Implementations
             await client.DisconnectAsync(true);
         }
 
-        public async Task SendVerificationCode(ApplicationUser user)
+        public async Task SendVerificationCode(ApplicationUser user, string codeType = "EmailVerification")
         {
             var code = new Random().Next(1000, 9999).ToString();
 
             await _userManager.SetAuthenticationTokenAsync(user, TokenOptions.DefaultProvider, "Code", code);
 
-            var message = $"<p>Your email verification code is: <b>{code}</b></p>";
+            var subject = "";
+            var message = "";
 
-            var Subject = $"Email Verification Code";
+            if (codeType == "PasswordReset")
+            {
+                message = $"<p>Your Pssword Reset code is: <b>{code}</b></p>";
 
-            await SendEmailAsync(user.Email, Subject, message);
+                subject = $"Password Reset";
+            }
+            else
+            {
+                message = $"<p>Your email verification code is: <b>{code}</b></p>";
+
+                subject = $"Email Verification";
+            }
+
+            await SendEmailAsync(user.Email, subject, message);
         }
 
         public async Task<bool> VerifyCode(ApplicationUser user, string code)
@@ -57,9 +69,9 @@ namespace AgriculturalTech.API.Services.Implementations
             if (storedCode == null || storedCode != code)
                 return false;
 
-            user.EmailConfirmed = true;
+            //user.EmailConfirmed = true;
 
-            await _userManager.UpdateAsync(user);
+            //await _userManager.UpdateAsync(user);
 
             await _userManager.RemoveAuthenticationTokenAsync(user, TokenOptions.DefaultProvider, "Code");
 
