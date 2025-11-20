@@ -25,22 +25,24 @@ namespace AgriculturalTech.API.Controllers
         public async Task<ActionResult<ApiResponse<List<SensorDeviceDto>>>> GetMyDevices()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var devices = await _unitOfWork.SensorDevices.FindAsync(d => d.UserId == userId && d.IsActive);
 
-            //var deviceDtos = devices.Select(d => new SensorDeviceDto
-            //{
-            //    Id = d.Id,
-            //    DeviceId = d.DeviceId,
-            //    Location = d.Location,
-            //    Status = d.Status,
-            //    LastSyncAt = d.LastSyncAt,
-            //    InstalledAt = d.InstalledAt,
-            //    IsActive = d.IsActive
-            //}).ToList();
+            var devices = await _unitOfWork.SensorDevices.FindAsync(d => d.UserId == userId && d.IsActive);
 
             var deviceDtos = _mapper.Map<List<SensorDeviceDto>>(devices);
 
             return Ok(ApiResponse<List<SensorDeviceDto>>.SuccessResponse(deviceDtos));
+        }
+
+        // GET: api/devices
+        [HttpGet("devices")]
+        [Authorize]
+        public async Task<ActionResult<ApiResponse<List<DeviceDto>>>> GetAllDevices()
+        {
+            var devices = await _unitOfWork.Devices.GetAllAsync();
+
+            var deviceDtos = _mapper.Map<List<DeviceDto>>(devices);
+
+            return Ok(ApiResponse<List<DeviceDto>>.SuccessResponse(deviceDtos));
         }
 
         // POST: api/sensordevices
@@ -57,15 +59,6 @@ namespace AgriculturalTech.API.Controllers
             if (existingDevice != null)
                 return BadRequest(ApiResponse<SensorDeviceDto>.ErrorResponse("Device ID already registered to that user"));
 
-            //var device = new SensorDevice
-            //{
-            //    UserId = userId,
-            //    DeviceId = dto.DeviceId,
-            //    Location = dto.Location,
-            //    Status = "Active",
-            //    IsActive = true,
-            //};
-
             var device = _mapper.Map<SensorDevice>(dto);
 
             device.UserId = userId;
@@ -74,16 +67,6 @@ namespace AgriculturalTech.API.Controllers
 
             await _unitOfWork.SensorDevices.AddAsync(device);
             await _unitOfWork.SaveChangesAsync();
-
-            //var deviceDto = new SensorDeviceDto
-            //{
-            //    Id = device.Id,
-            //    DeviceId = device.DeviceId,
-            //    Location = device.Location,
-            //    Status = device.Status,
-            //    InstalledAt = device.InstalledAt,
-            //    IsActive = device.IsActive
-            //};
 
             var deviceDto = _mapper.Map<SensorDeviceDto>(device);
 
@@ -102,27 +85,6 @@ namespace AgriculturalTech.API.Controllers
 
             if (sensorDevice == null)
                 return NotFound(ApiResponse<bool>.ErrorResponse("Device not found"));
-
-            //// Verify user owns the device
-            //var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            //if (sensorDevice.UserId != userId)
-            //    return Forbid();
-
-            //var reading = new SensorReading
-            //{
-            //    SensorDeviceId = sensorDevice.Id,
-            //    UserPlantId = dto.UserPlantId,
-            //    Nitrogen = dto.Nitrogen,
-            //    Phosphorous = dto.Phosphorous,
-            //    Potassium = dto.Potassium,
-            //    Ph = dto.Ph,
-            //    Humidity = dto.Humidity,
-            //    Temperature = dto.Temperature,
-            //    Rainfall = dto.Rainfall,
-            //    SoilMoisture = dto.SoilMoisture,
-            //    ReadingTime = dto.ReadingTime ?? DateTime.UtcNow
-            //};
 
             var reading = _mapper.Map<SensorReading>(dto);
 
@@ -144,34 +106,20 @@ namespace AgriculturalTech.API.Controllers
             return Ok(ApiResponse<bool>.SuccessResponse(true, "Reading recorded successfully"));
         }
 
-        // GET: api/sensordevices/{id}/readings
-        [HttpGet("{id}/readings")]
+        // GET: api/sensordevices/readings
+        [HttpGet("readings")]
         [Authorize]
-        public async Task<ActionResult<ApiResponse<List<SensorReadingDto>>>> GetDeviceReadings(int id, [FromQuery] int count = 100)
+        public async Task<ActionResult<ApiResponse<List<SensorReadingDto>>>> GetDeviceReadings()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var device = await _unitOfWork.SensorDevices
-                .FirstOrDefaultAsync(d => d.Id == id && d.UserId == userId);
 
-            if (device == null)
+            var sensorDevice = await _unitOfWork.SensorDevices
+                .FirstOrDefaultAsync(d => d.UserId == userId);
+
+            if (sensorDevice == null)
                 return NotFound(ApiResponse<List<SensorReadingDto>>.ErrorResponse("Device not found"));
 
-            var readings = await _unitOfWork.SensorReadings.GetLatestReadingsByDeviceAsync(id, count);
-
-            //var readingDtos = readings.Select(r => new SensorReadingDto
-            //{
-            //    Id = r.Id,
-            //    SensorDeviceId = r.SensorDeviceId,
-            //    Nitrogen = r.Nitrogen,
-            //    Phosphorous = r.Phosphorous,
-            //    Potassium = r.Potassium,
-            //    Ph = r.Ph,
-            //    Humidity = r.Humidity,
-            //    Temperature = r.Temperature,
-            //    Rainfall = r.Rainfall,
-            //    SoilMoisture = r.SoilMoisture,
-            //    ReadingTime = r.ReadingTime
-            //}).ToList();
+            var readings = await _unitOfWork.SensorReadings.GetLatestReadingsByDeviceAsync(sensorDevice.Id, 10);
 
             var readingDtos = _mapper.Map<List<SensorReadingDto>>(readings);
 
@@ -194,17 +142,6 @@ namespace AgriculturalTech.API.Controllers
             var latestReading = await _unitOfWork.SensorReadings.GetLatestReadingAsync(id);
 
             var statistics = new List<SensorStatisticsDto>();
-
-            //if (latestReading != null)
-            //{
-            //    statistics.Add(CreateStatistic("Nitrogen", averages.GetValueOrDefault("Nitrogen"), latestReading.Nitrogen));
-            //    statistics.Add(CreateStatistic("Phosphorous", averages.GetValueOrDefault("Phosphorous"), latestReading.Phosphorous));
-            //    statistics.Add(CreateStatistic("Potassium", averages.GetValueOrDefault("Potassium"), latestReading.Potassium));
-            //    statistics.Add(CreateStatistic("pH", averages.GetValueOrDefault("Ph"), latestReading.Ph));
-            //    statistics.Add(CreateStatistic("Humidity", averages.GetValueOrDefault("Humidity"), latestReading.Humidity));
-            //    statistics.Add(CreateStatistic("Temperature", averages.GetValueOrDefault("Temperature"), latestReading.Temperature));
-            //    statistics.Add(CreateStatistic("Soil Moisture", averages.GetValueOrDefault("SoilMoisture"), latestReading.SoilMoisture));
-            //}
 
             if (latestReading != null)
             {

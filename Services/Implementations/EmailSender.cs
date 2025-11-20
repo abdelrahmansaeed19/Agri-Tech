@@ -48,7 +48,7 @@ namespace AgriculturalTech.API.Services.Implementations
 
             if (codeType == "PasswordReset")
             {
-                message = $"<p>Your Pssword Reset code is: <b>{code}</b></p>";
+                message = $"<p>Your Password Reset code is: <b>{code}</b></p>";
 
                 subject = $"Password Reset";
             }

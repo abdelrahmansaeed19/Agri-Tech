@@ -10,6 +10,7 @@ public interface IUnitOfWork : IDisposable
     IRepository<CropDisease> CropDiseases { get; }
     IRepository<DiseaseDetectionLog> DiseaseDetectionLogs { get; }
     IRepository<SensorDevice> SensorDevices { get; }
+    IRepository<Device> Devices { get; }
     IRepository<PlantHealthLog> PlantHealthLogs { get; }
     IRepository<CropCalendarTemplate> CropCalendarTemplates { get; }
     IRepository<FertilizerRecommendation> FertilizerRecommendations { get; }

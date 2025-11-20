@@ -92,7 +92,7 @@ namespace AgriculturalTech.API.Controllers
             if (user == null)
                 return NotFound(ApiResponse<string>.ErrorResponse("User not found."));
 
-            await _emailSender.SendVerificationCode(user);
+            await _emailSender.SendVerificationCode(user, "PasswordReset");
 
             return Ok(ApiResponse<string>.SuccessResponse("", "Reset code sent successfully"));
 

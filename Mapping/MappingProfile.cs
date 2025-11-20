@@ -27,6 +27,9 @@ namespace AgriculturalTech.API.Mapping
             // SensorDevice mappings
             CreateMap<SensorDevice, SensorDeviceDto>();
 
+            // Device mappings
+            CreateMap<Device, DeviceDto>();
+
             // SensorReading mappings
             CreateMap<SensorReading, SensorReadingDto>();
 

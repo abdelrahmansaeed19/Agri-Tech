@@ -18,6 +18,7 @@ public class UnitOfWork : IUnitOfWork
         CropDiseases = new Repository<CropDisease>(_context);
         DiseaseDetectionLogs = new Repository<DiseaseDetectionLog>(_context);
         SensorDevices = new Repository<SensorDevice>(_context);
+        Devices = new Repository<Device>(_context);
         PlantHealthLogs = new Repository<PlantHealthLog>(_context);
         CropCalendarTemplates = new Repository<CropCalendarTemplate>(_context);
         FertilizerRecommendations = new Repository<FertilizerRecommendation>(_context);
@@ -36,6 +37,7 @@ public class UnitOfWork : IUnitOfWork
     public IRepository<CropDisease> CropDiseases { get; private set; }
     public IRepository<DiseaseDetectionLog> DiseaseDetectionLogs { get; private set; }
     public IRepository<SensorDevice> SensorDevices { get; private set; }
+    public IRepository<Device> Devices { get; private set; }
     public IRepository<PlantHealthLog> PlantHealthLogs { get; private set; }
     public IRepository<CropCalendarTemplate> CropCalendarTemplates { get; private set; }
     public IRepository<FertilizerRecommendation> FertilizerRecommendations { get; private set; }
