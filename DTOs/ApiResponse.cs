@@ -22,6 +22,15 @@ namespace AgriculturalTech.API.DTOs
             };
         }
 
+        public static ApiResponse<T> SuccessResponse(string message)
+        {
+            return new ApiResponse<T>
+            {
+                Success = true,
+                Message = message
+            };
+        }
+
         public static ApiResponse<T> ErrorResponse(string message, List<string> errors = null)
         {
             return new ApiResponse<T>

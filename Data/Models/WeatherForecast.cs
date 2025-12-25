@@ -21,8 +21,8 @@ public class WeatherForecast
     [Column(TypeName = "decimal(5,2)")]
     public decimal? TemperatureMin { get; set; }
 
-    [Column(TypeName = "decimal(5,2)")]
-    public decimal? Humidity { get; set; }
+    //[Column(TypeName = "decimal(5,2)")]
+    //public decimal? Humidity { get; set; }
 
     [Column(TypeName = "decimal(10,2)")]
     public decimal? RainfallMm { get; set; }

@@ -79,7 +79,6 @@ public class WeatherSyncService : BackgroundService
                             ForecastDate = forecast.Date,
                             TemperatureMax = forecast.TemperatureMax,
                             TemperatureMin = forecast.TemperatureMin,
-                            Humidity = forecast.Humidity,
                             RainfallMm = forecast.RainfallMm,
                             WindSpeedKmh = forecast.WindSpeedKmh,
                             WeatherCondition = forecast.WeatherCondition,

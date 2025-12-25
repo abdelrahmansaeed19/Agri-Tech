@@ -94,11 +94,14 @@ builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 // ===================== SERVICES =====================
 builder.Services.AddScoped<IFertilizerService, FertilizerService>();
 builder.Services.AddScoped<IDiseaseDetectionService, DiseaseDetectionService>();
-builder.Services.AddScoped<IWeatherService, WeatherService>();
 builder.Services.AddScoped<IMarketPriceService, MarketPriceService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IImageStorageService, ImageStorageService>();
 builder.Services.AddScoped<IActivityLogService, ActivityLogService>();
+
+//===================== SERVICES WITH EXTERNAL APIs =====================
+
+builder.Services.AddHttpClient<IWeatherService, WeatherService>();
 
 // ===================== BACKGROUND SERVICES =====================
 builder.Services.AddHostedService<ReminderNotificationService>();

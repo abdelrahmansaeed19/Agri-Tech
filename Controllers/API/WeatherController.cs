@@ -39,6 +39,7 @@ namespace AgriculturalTech.API.Controllers
                 return BadRequest(ApiResponse<List<WeatherForecastDto>>.ErrorResponse("Location is required"));
 
             var forecast = await _weatherService.GetWeatherForecastAsync(location, days);
+
             return Ok(ApiResponse<List<WeatherForecastDto>>.SuccessResponse(forecast));
         }
 
