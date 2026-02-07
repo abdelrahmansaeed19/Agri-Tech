@@ -216,11 +216,9 @@ if (app.Environment.IsDevelopment() || true)
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "AgriculturalTech API v1");
         c.RoutePrefix = string.Empty;
     });
-    ///Console.WriteLine();
-    ///Console.WriteLine();
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 app.UseStaticFiles();
 
