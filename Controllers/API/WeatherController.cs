@@ -22,23 +22,21 @@ namespace AgriculturalTech.API.Controllers
         }
 
         // GET: api/weather/forecast
-        [HttpGet("forecast")]
-        public async Task<ActionResult<ApiResponse<List<WeatherForecastDto>>>> GetForecast(
-            [FromQuery] string location = null,
-            [FromQuery] int days = 7)
+        [HttpPost("forecast")]
+        public async Task<ActionResult<ApiResponse<List<WeatherForecastDto>>>> GetForecast([FromBody] ForcastRequestDto requestDto)
         {
-            if (string.IsNullOrEmpty(location))
+            if (string.IsNullOrEmpty(requestDto.Location))
             {
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 var user = await _unitOfWork.Query<ApplicationUser>()
                     .FirstOrDefaultAsync(u => u.Id == userId);
-                location = user?.FarmLocation;
+                requestDto.Location = user?.FarmLocation;
             }
 
-            if (string.IsNullOrEmpty(location))
+            if (string.IsNullOrEmpty(requestDto.Location))
                 return BadRequest(ApiResponse<List<WeatherForecastDto>>.ErrorResponse("Location is required"));
 
-            var forecast = await _weatherService.GetWeatherForecastAsync(location, days);
+            var forecast = await _weatherService.GetWeatherForecastAsync(requestDto.Location, (requestDto.Days <= 0 ) ? 7 : requestDto.Days);
 
             return Ok(ApiResponse<List<WeatherForecastDto>>.SuccessResponse(forecast));
         }

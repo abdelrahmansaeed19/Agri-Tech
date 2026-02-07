@@ -1,5 +1,14 @@
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
+
+public class ForcastRequestDto
+{
+    [Required]
+    public string Location { get; set; }
+
+    public int Days { get; set; } = 7;
+}
 public class WeatherForecastDto
 {
     public DateTime Date { get; set; }
