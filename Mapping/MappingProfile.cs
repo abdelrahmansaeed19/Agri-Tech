@@ -88,7 +88,9 @@ namespace AgriculturalTech.API.Mapping
                 .ForMember(dest => dest.CropType, opt => opt.Ignore())
                 .ForMember(dest => dest.PlantHealthLogs, opt => opt.Ignore())
                 .ForMember(dest => dest.SensorReadings, opt => opt.Ignore())
-                .ForMember(dest => dest.DiseaseDetectionLogs, opt => opt.Ignore());
+                .ForMember(dest => dest.DiseaseDetectionLogs, opt => opt.Ignore())
+                .ForMember(dest => dest.SensorDeviceId, opt => opt.Ignore())
+                .ForMember(dest => dest.SensorDevice, opt => opt.Ignore());
 
             CreateMap<UpdateUserPlantDto, UserPlant>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
@@ -104,7 +106,9 @@ namespace AgriculturalTech.API.Mapping
                 .ForMember(dest => dest.CropType, opt => opt.Ignore())
                 .ForMember(dest => dest.PlantHealthLogs, opt => opt.Ignore())
                 .ForMember(dest => dest.SensorReadings, opt => opt.Ignore())
-                .ForMember(dest => dest.DiseaseDetectionLogs, opt => opt.Ignore());
+                .ForMember(dest => dest.DiseaseDetectionLogs, opt => opt.Ignore())
+                .ForMember(dest => dest.SensorDeviceId, opt => opt.Ignore())
+                .ForMember(dest => dest.SensorDevice, opt => opt.Ignore());
 
             CreateMap<CreateSensorDeviceDto, SensorDevice>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
@@ -114,7 +118,9 @@ namespace AgriculturalTech.API.Mapping
                 .ForMember(dest => dest.InstalledAt, opt => opt.Ignore())
                 .ForMember(dest => dest.IsActive, opt => opt.Ignore())
                 .ForMember(dest => dest.User, opt => opt.Ignore())
-                .ForMember(dest => dest.SensorReadings, opt => opt.Ignore());
+                .ForMember(dest => dest.SensorReadings, opt => opt.Ignore())
+                .ForMember(dest => dest.Device, opt => opt.Ignore())
+                .ForMember(dest => dest.UserPlant, opt => opt.Ignore());
 
             CreateMap<CreateSensorReadingDto, SensorReading>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
@@ -122,7 +128,8 @@ namespace AgriculturalTech.API.Mapping
                 .ForMember(dest => dest.SensorDevice, opt => opt.Ignore())
                 .ForMember(dest => dest.ReadingTime, opt => opt.Ignore())
                 .ForMember(dest => dest.UserPlantId, opt => opt.Ignore())
-                .ForMember(dest => dest.UserPlant, opt => opt.Ignore());
+                .ForMember(dest => dest.UserPlant, opt => opt.Ignore())
+                .ForMember(dest => dest.SensorDeviceId, opt => opt.Ignore());
 
             CreateMap<CreateCropReminderDto, CropReminder>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
