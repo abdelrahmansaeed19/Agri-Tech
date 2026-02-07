@@ -38,7 +38,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     options.Password.RequiredLength = 8;
     options.Password.RequiredUniqueChars = 1;
     options.User.RequireUniqueEmail = true;
-    //options.SignIn.RequireConfirmedEmail = true;
+    options.SignIn.RequireConfirmedEmail = true;
 })
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
