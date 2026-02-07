@@ -43,14 +43,15 @@ jobs:
       with:
         name: webapp
         path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
-    - name: Azure Login
-      uses: azure/login@v2
-      with:
-        client-id: ${{ vars.AgriTech_CLIENT_ID_EF57 }}
-        tenant-id: ${{ vars.AgriTech_TENANT_ID_214F }}
-        subscription-id: ${{ vars.AgriTech_SUBSCRIPTION_ID_214F }}
+    # - name: Azure Login
+    #   uses: azure/login@v2
+    #   with:
+    #     client-id: ${{ vars.AgriTech_CLIENT_ID_EF57 }}
+    #     tenant-id: ${{ vars.AgriTech_TENANT_ID_214F }}
+    #     subscription-id: ${{ vars.AgriTech_SUBSCRIPTION_ID_214F }}
     - name: Deploy to Azure WebApp
       uses: azure/webapps-deploy@v2
       with:
         app-name: ${{ env.AZURE_WEBAPP_NAME }}
+        publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_AGRITECH }}
         package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
