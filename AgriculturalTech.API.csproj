@@ -11,6 +11,10 @@
     <None Remove="Services\Resources\xception_plant_model_22.onnx" />
   </ItemGroup>
 
+	<PropertyGroup>
+		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+	</PropertyGroup>
+
   <ItemGroup>
     <Content Include="Services\Resources\xception_plant_model_22.onnx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

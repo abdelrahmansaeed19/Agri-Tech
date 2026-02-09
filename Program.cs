@@ -99,7 +99,7 @@ builder.Services.AddScoped<IMarketPriceService, MarketPriceService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IImageStorageService, ImageStorageService>();
 builder.Services.AddScoped<IActivityLogService, ActivityLogService>();
-builder.Services.AddScoped<IAiModelService, AiModelService>();
+builder.Services.AddSingleton<IAiModelService, AiModelService>();
 
 //===================== SERVICES WITH EXTERNAL APIs =====================
 
