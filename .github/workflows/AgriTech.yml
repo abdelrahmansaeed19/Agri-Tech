@@ -24,7 +24,7 @@ jobs:
     - name: Restore
       run: dotnet restore "AgriculturalTech.API.csproj" -r linux-x64
     - name: Build
-      run: dotnet build "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }} --no-restore
+      run: dotnet build "AgriculturalTech.API.csproj" --configuration ${{ env.CONFIGURATION }} -r linux-x64
     - name: Test
       run: dotnet test "${{ env.WORKING_DIRECTORY }}" --no-build
     - name: Publish
