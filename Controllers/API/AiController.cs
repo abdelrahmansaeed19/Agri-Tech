@@ -1,4 +1,5 @@
 ﻿using AgriculturalTech.API.DTOs;
+using AgriculturalTech.API.Services.Interfaces;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -14,11 +15,13 @@ namespace AgriculturalTech.API.Controllers.API
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly HttpClient _httpClient;
-        public AiController(IUnitOfWork unitOfWork, IMapper mapper, HttpClient httpClient)
+        private readonly IAiModelService _modelService;
+        public AiController(IUnitOfWork unitOfWork, IMapper mapper, HttpClient httpClient, IAiModelService aiModelService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _httpClient = httpClient;
+            _modelService = aiModelService;
         }
 
         [Authorize]
@@ -30,28 +33,38 @@ namespace AgriculturalTech.API.Controllers.API
                 return BadRequest("No image uploaded.");
             }
 
-            using var content = new MultipartFormDataContent();
-            using var stream = image.OpenReadStream();
-            using var streamContent = new StreamContent(stream);
+            //using var content = new MultipartFormDataContent();
+            //using var stream = image.OpenReadStream();
+            //using var streamContent = new StreamContent(stream);
 
-            // "file" matches the Python variable name
+            //// "file" matches the Python variable name
 
-            content.Add(streamContent, "file", image.FileName);
+            //content.Add(streamContent, "file", image.FileName);
 
-            var pythonApiUrl = "http://127.0.0.1:8000/predict";
+            //var pythonApiUrl = "http://127.0.0.1:8000/predict";
 
             try
             {
-                var response = await _httpClient.PostAsync(pythonApiUrl, content);
+                //var response = await _httpClient.PostAsync(pythonApiUrl, content);
 
-                response.EnsureSuccessStatusCode();
+                //response.EnsureSuccessStatusCode();
 
-                var responseString = await response.Content.ReadAsStringAsync();
+                //var responseString = await response.Content.ReadAsStringAsync();
 
-                var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-                var aiResult = JsonSerializer.Deserialize<AIResponse>(responseString, options);
+                //var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                //var aiResult = JsonSerializer.Deserialize<AIResponse>(responseString, options);
 
-                return Ok(ApiResponse<AIResponse>.SuccessResponse(aiResult, "Image processed successfully"));
+                using var stream = image.OpenReadStream();
+
+                AIResponse aIResponse = await _modelService.PredictAsync(stream);
+
+                return Ok(ApiResponse<AIResponse>.SuccessResponse(new AIResponse
+                {
+                    ClassId = aIResponse.ClassId,
+                    ClassName = aIResponse.ClassName,
+                    Confidence = aIResponse.Confidence
+                },
+                "Image processed successfully"));
 
             }
             catch (Exception ex)

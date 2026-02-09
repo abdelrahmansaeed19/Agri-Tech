@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.OpenApi.Models;
 using System.Text;
 using AgriculturalTech.API.Services.Implementations;
+using AgriculturalTech.API.Services.Interfaces;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -98,6 +99,7 @@ builder.Services.AddScoped<IMarketPriceService, MarketPriceService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IImageStorageService, ImageStorageService>();
 builder.Services.AddScoped<IActivityLogService, ActivityLogService>();
+builder.Services.AddScoped<IAiModelService, AiModelService>();
 
 //===================== SERVICES WITH EXTERNAL APIs =====================
 
@@ -214,7 +216,7 @@ if (app.Environment.IsDevelopment() || true)
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "AgriculturalTech API v1");
-        c.RoutePrefix = string.Empty;
+        c.RoutePrefix = "swagger";
     });
 }
 
