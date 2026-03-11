@@ -144,6 +144,16 @@ namespace AgriculturalTech.API.Data
                 entity.HasIndex(e => e.Type);
             });
 
+            // ===================== USER SUBSCRIPTION CONFIGURATION =====================
+            builder.Entity<UserSubscription>(entity =>
+            {
+                entity.HasOne(d => d.User)
+                    .WithMany(p => p.UserSubscriptions)
+                    .HasForeignKey(d => d.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+
             // ===================== SENSOR DEVICE CONFIGURATION =====================
             builder.Entity<SensorDevice>(entity =>
             {
@@ -154,10 +164,10 @@ namespace AgriculturalTech.API.Data
 
                 entity.HasOne(d => d.Device)
                     .WithMany(p => p.SensorDevices)
-                    .HasForeignKey(d => d.DeviceId)
+                    .HasForeignKey(d => d.MacAddress)
                     .OnDelete(DeleteBehavior.Restrict);
 
-                entity.HasIndex(e => e.DeviceId).IsUnique();
+                entity.HasIndex(e => e.MacAddress).IsUnique();
                 entity.HasIndex(e => e.UserId);
                 entity.HasIndex(e => e.Status);
             });

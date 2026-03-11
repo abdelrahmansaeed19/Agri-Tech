@@ -4,6 +4,7 @@ using AgriculturalTech.API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AgriculturalTech.API.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260303110630_Payment_Mig")]
+    partial class Payment_Mig
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -264,7 +267,7 @@ namespace AgriculturalTech.API.Data.Migrations
                         {
                             Id = 1,
                             Category = "Vegetables",
-                            CreatedAt = new DateTime(2026, 3, 11, 8, 20, 12, 280, DateTimeKind.Utc).AddTicks(7050),
+                            CreatedAt = new DateTime(2026, 3, 3, 11, 6, 29, 974, DateTimeKind.Utc).AddTicks(9238),
                             DescriptionAr = "خضار شائعة في الحدائق",
                             DescriptionEn = "Popular garden vegetable",
                             GrowingDurationDays = 75,
@@ -284,7 +287,7 @@ namespace AgriculturalTech.API.Data.Migrations
                         {
                             Id = 2,
                             Category = "Grains",
-                            CreatedAt = new DateTime(2026, 3, 11, 8, 20, 12, 280, DateTimeKind.Utc).AddTicks(7063),
+                            CreatedAt = new DateTime(2026, 3, 3, 11, 6, 29, 974, DateTimeKind.Utc).AddTicks(9252),
                             DescriptionAr = "محصول حبوب أساسي",
                             DescriptionEn = "Staple grain crop",
                             GrowingDurationDays = 120,
@@ -304,7 +307,7 @@ namespace AgriculturalTech.API.Data.Migrations
                         {
                             Id = 3,
                             Category = "Grains",
-                            CreatedAt = new DateTime(2026, 3, 11, 8, 20, 12, 280, DateTimeKind.Utc).AddTicks(7068),
+                            CreatedAt = new DateTime(2026, 3, 3, 11, 6, 29, 974, DateTimeKind.Utc).AddTicks(9257),
                             DescriptionAr = "حبوب غذائية مهمة",
                             DescriptionEn = "Important cereal grain",
                             GrowingDurationDays = 90,
@@ -324,7 +327,7 @@ namespace AgriculturalTech.API.Data.Migrations
                         {
                             Id = 4,
                             Category = "Vegetables",
-                            CreatedAt = new DateTime(2026, 3, 11, 8, 20, 12, 280, DateTimeKind.Utc).AddTicks(7072),
+                            CreatedAt = new DateTime(2026, 3, 3, 11, 6, 29, 974, DateTimeKind.Utc).AddTicks(9261),
                             DescriptionAr = "محصول خضار جذري",
                             DescriptionEn = "Root vegetable crop",
                             GrowingDurationDays = 100,
@@ -344,7 +347,7 @@ namespace AgriculturalTech.API.Data.Migrations
                         {
                             Id = 5,
                             Category = "Grains",
-                            CreatedAt = new DateTime(2026, 3, 11, 8, 20, 12, 280, DateTimeKind.Utc).AddTicks(7076),
+                            CreatedAt = new DateTime(2026, 3, 3, 11, 6, 29, 974, DateTimeKind.Utc).AddTicks(9264),
                             DescriptionAr = "حبوب غذائية أساسية",
                             DescriptionEn = "Staple food grain",
                             GrowingDurationDays = 120,
@@ -492,45 +495,6 @@ namespace AgriculturalTech.API.Data.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("UserPlants");
-                });
-
-            modelBuilder.Entity("AgriculturalTech.API.Data.Models.UserSubscription", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<bool>("CancelAtPeriodEnd")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("CurrentPeriodEnd")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("CurrentPeriodStart")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("StripeCustomerId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("StripeSubscriptionId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("SubscriptionStatus")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("UserSubscription");
                 });
 
             modelBuilder.Entity("CropCalendarTemplate", b =>
@@ -1228,7 +1192,7 @@ namespace AgriculturalTech.API.Data.Migrations
 
                     b.Property<string>("DeviceId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("InstalledAt")
                         .HasColumnType("datetime2");
@@ -1239,9 +1203,10 @@ namespace AgriculturalTech.API.Data.Migrations
                     b.Property<DateTime?>("LastSyncAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("MacAddress")
+                    b.Property<string>("Location")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -1254,7 +1219,7 @@ namespace AgriculturalTech.API.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("MacAddress")
+                    b.HasIndex("DeviceId")
                         .IsUnique();
 
                     b.HasIndex("Status");
@@ -1474,17 +1439,6 @@ namespace AgriculturalTech.API.Data.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("AgriculturalTech.API.Data.Models.UserSubscription", b =>
-                {
-                    b.HasOne("AgriculturalTech.API.Data.Models.ApplicationUser", "User")
-                        .WithMany("UserSubscriptions")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("CropCalendarTemplate", b =>
                 {
                     b.HasOne("AgriculturalTech.API.Data.Models.CropType", "CropType")
@@ -1660,7 +1614,7 @@ namespace AgriculturalTech.API.Data.Migrations
                 {
                     b.HasOne("AgriculturalTech.API.Data.Models.Device", "Device")
                         .WithMany("SensorDevices")
-                        .HasForeignKey("MacAddress")
+                        .HasForeignKey("DeviceId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -1711,8 +1665,6 @@ namespace AgriculturalTech.API.Data.Migrations
                     b.Navigation("SensorDevices");
 
                     b.Navigation("UserPlants");
-
-                    b.Navigation("UserSubscriptions");
 
                     b.Navigation("WeatherAlerts");
                 });

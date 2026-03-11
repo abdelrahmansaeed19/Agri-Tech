@@ -13,20 +13,17 @@ public class SensorDevice
 
     // Foreign key to the master Device table
     [Required]
-    public string DeviceId { get; set; }
+    public string MacAddress { get; set; }
 
     [Required]
     public string UserId { get; set; } = null!;
-
-    [Required, MaxLength(200)]
-    public string Location { get; set; } = null!;
 
     [Required, MaxLength(50)]
     public string Status { get; set; } = null!; // Active, Inactive, Maintenance
 
     public DateTime? LastSyncAt { get; set; }
 
-    public DateTime InstalledAt { get; set; } = DateTime.UtcNow;
+    public DateTime InstalledAt { get; set; }
 
     public bool IsActive { get; set; }
 

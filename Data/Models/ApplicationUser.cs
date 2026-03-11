@@ -22,6 +22,10 @@ namespace AgriculturalTech.API.Data.Models
         [MaxLength(10)]
         public string PreferredLanguage { get; set; } = "en";
 
+        public bool IsPremiumUser { get; set; } = false;
+
+        public int LifetimeFreeScansUsed { get; set; } = 0;
+
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? LastLoginAt { get; set; }
         public bool IsActive { get; set; } = true;
@@ -31,5 +35,6 @@ namespace AgriculturalTech.API.Data.Models
         public virtual ICollection<CropReminder> CropReminders { get; set; }
         public virtual ICollection<WeatherAlert> WeatherAlerts { get; set; }
         public virtual ICollection<SensorDevice> SensorDevices { get; set; }
+        public virtual ICollection<UserSubscription> UserSubscriptions { get; set; }
     }
 }

@@ -110,7 +110,7 @@ namespace AgriculturalTech.API.Mapping
                 .ForMember(dest => dest.SensorDeviceId, opt => opt.Ignore())
                 .ForMember(dest => dest.SensorDevice, opt => opt.Ignore());
 
-            CreateMap<CreateSensorDeviceDto, SensorDevice>()
+            CreateMap<RegisterSensorDeviceDto, SensorDevice>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
                 .ForMember(dest => dest.UserId, opt => opt.Ignore())
                 .ForMember(dest => dest.Status, opt => opt.Ignore())

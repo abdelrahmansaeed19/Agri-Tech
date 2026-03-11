@@ -1,6 +1,8 @@
+using AgriculturalTech.API.Data.Models;
 using AgriculturalTech.API.DTOs;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -12,11 +14,13 @@ namespace AgriculturalTech.API.Controllers
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public SensorDevicesController(IUnitOfWork unitOfWork, IMapper mapper)
+        public SensorDevicesController(IUnitOfWork unitOfWork, IMapper mapper, UserManager<ApplicationUser> userManager)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _userManager = userManager;
         }
 
         // GET: api/sensordevices
@@ -46,32 +50,73 @@ namespace AgriculturalTech.API.Controllers
         }
 
         // POST: api/sensordevices
-        [HttpPost]
+        [HttpPost("activate-device")]
         [Authorize]
-        public async Task<ActionResult<ApiResponse<SensorDeviceDto>>> RegisterDevice([FromBody] CreateSensorDeviceDto dto)
+        public async Task<ActionResult<ApiResponse<SensorDeviceDto>>> ActivateDevice()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             // Check if user already has that device
-            var existingDevice = await _unitOfWork.SensorDevices
-                .FirstOrDefaultAsync(d => d.DeviceId == dto.DeviceId && d.UserId == userId);
+            var sensorDevice = await _unitOfWork.SensorDevices
+                .FirstOrDefaultAsync(d => d.UserId == userId);
 
-            if (existingDevice != null)
-                return BadRequest(ApiResponse<SensorDeviceDto>.ErrorResponse("Device ID already registered to that user"));
+            if (sensorDevice == null)
+                return BadRequest(ApiResponse<SensorDeviceDto>.ErrorResponse("Purchase Kit First!"));
 
-            var device = _mapper.Map<SensorDevice>(dto);
+            if (sensorDevice.IsActive)
+                return BadRequest(ApiResponse<SensorDeviceDto>.ErrorResponse("Already Activated Before"));
 
-            device.UserId = userId;
-            device.Status = "Active";
-            device.IsActive = true;
+            if (sensorDevice.Status != "Pending")
+                return BadRequest(ApiResponse<SensorDeviceDto>.ErrorResponse("Please Connect Your Kit to Wifi!"));
 
-            await _unitOfWork.SensorDevices.AddAsync(device);
+
+            sensorDevice.Status = "Active";
+            sensorDevice.IsActive = true;
+
+            _unitOfWork.SensorDevices.Update(sensorDevice);
+
             await _unitOfWork.SaveChangesAsync();
 
-            var deviceDto = _mapper.Map<SensorDeviceDto>(device);
+            var deviceDto = _mapper.Map<SensorDeviceDto>(sensorDevice);
 
-            return CreatedAtAction(nameof(GetMyDevices), new { id = device.Id },
-                ApiResponse<SensorDeviceDto>.SuccessResponse(deviceDto, "Device registered successfully"));
+            return CreatedAtAction(nameof(GetMyDevices), new { id = sensorDevice.Id },
+                ApiResponse<SensorDeviceDto>.SuccessResponse(deviceDto, "Device Assigned successfully"));
+        }
+
+        [HttpPost("register-device")]
+        public async Task<ActionResult<ApiResponse<SensorDeviceDto>>> RegisterDevice([FromBody] RegisterSensorDeviceDto dto)
+        {
+            // Check if device with the same MAC address already exists
+            
+            var user = await _userManager.FindByEmailAsync(dto.UserEmail);
+
+            if (user == null)
+                return NotFound(ApiResponse<SensorDeviceDto>.ErrorResponse("User not found"));
+
+            var RegisteredDevice = user.SensorDevices.FirstOrDefault(d => d.MacAddress == dto.MacAddress);
+
+
+            if (RegisteredDevice != null)
+                return BadRequest(ApiResponse<SensorDeviceDto>.ErrorResponse("Mac Address already registered"));
+
+            var pendingDevice = user.SensorDevices.FirstOrDefault(d => d.UserId == user.Id);
+
+            if(pendingDevice == null)
+                return BadRequest(ApiResponse<SensorDeviceDto>.ErrorResponse("No pending device found for this user"));
+
+            pendingDevice.MacAddress = dto.MacAddress;
+            pendingDevice.Status = "Pending";
+            pendingDevice.IsActive = false;
+            pendingDevice.InstalledAt = DateTime.Now;
+
+            _unitOfWork.SensorDevices.Update(pendingDevice);
+
+            await _unitOfWork.SaveChangesAsync();
+
+            var deviceDto = _mapper.Map<SensorDeviceDto>(pendingDevice);
+
+            return CreatedAtAction(nameof(GetAllDevices), new { id = pendingDevice.Id },
+                ApiResponse<SensorDeviceDto>.SuccessResponse(deviceDto, "Device registered successfully, pending assignment"));
         }
 
         // POST: api/sensordevices/readings
@@ -81,7 +126,7 @@ namespace AgriculturalTech.API.Controllers
         {
             // Verify device exists and belongs to user
             var sensorDevice = await _unitOfWork.SensorDevices
-                .FirstOrDefaultAsync(d => d.DeviceId == dto.DeviceId && d.IsActive);
+                .FirstOrDefaultAsync(d => d.MacAddress == dto.DeviceId && d.IsActive);
 
             if (sensorDevice == null)
                 return NotFound(ApiResponse<bool>.ErrorResponse("Device not found"));

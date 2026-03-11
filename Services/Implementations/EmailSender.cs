@@ -31,8 +31,16 @@ namespace AgriculturalTech.API.Services.Implementations
             message.Body = new TextPart("html") { Text = htmlMessage };
 
             using var client = new SmtpClient();
-            await client.ConnectAsync(_config["Email:SmtpServer"], int.Parse(_config["Email:Port"]), true);
-            await client.AuthenticateAsync(_config["Email:Username"], _config["Email:Password"]);
+
+            try
+            {
+                await client.ConnectAsync(_config["Email:SmtpServer"], int.Parse(_config["Email:Port"]), true);
+                await client.AuthenticateAsync(_config["Email:Username"], _config["Email:Password"]);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"missing smtp configs: {ex.Message}");
+            }
             await client.SendAsync(message);
             await client.DisconnectAsync(true);
         }

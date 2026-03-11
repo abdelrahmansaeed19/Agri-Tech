@@ -1,18 +1,13 @@
 using System.ComponentModel.DataAnnotations;
 
-public class CreateSensorDeviceDto
+public class RegisterSensorDeviceDto
 {
-    //[Required, MaxLength(100)]
-    //public string DeviceName { get; set; }
 
     [Required, MaxLength(100)]
-    public string DeviceId { get; set; }
-
-    //[MaxLength(50)]
-    //public string DeviceType { get; set; }
+    public string MacAddress { get; set; }
 
     [MaxLength(200)]
-    public string Location { get; set; }
+    public string UserEmail { get; set; }
 }
 
 public class SensorDeviceDto
