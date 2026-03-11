@@ -51,5 +51,6 @@ namespace AgriculturalTech.API.Controllers.API
             {
                 return BadRequest(ApiResponse<string>.ErrorResponse("Failed to create billing portal session.", new List<string> { ex.Message }));
             }
+        }
     }
 }
