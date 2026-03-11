@@ -12,6 +12,8 @@ using Microsoft.OpenApi.Models;
 using System.Text;
 using AgriculturalTech.API.Services.Implementations;
 using AgriculturalTech.API.Services.Interfaces;
+using AgriculturalTech.API.Repositories.Interfaces;
+using AgriculturalTech.API.Repositories.Implementations;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -91,6 +93,7 @@ builder.Services.AddCors(options =>
 // ===================== REPOSITORIES =====================
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+builder.Services.AddScoped<IUserSubscriptionRepository, UserSubscriptionRepository>();
 
 // ===================== SERVICES =====================
 builder.Services.AddScoped<IFertilizerService, FertilizerService>();
