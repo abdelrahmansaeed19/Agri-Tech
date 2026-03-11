@@ -94,6 +94,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IUserSubscriptionRepository, UserSubscriptionRepository>();
+builder.Services.AddScoped<IAiAuthorizationRepository, AiAuthorizationRepository>();
 
 // ===================== SERVICES =====================
 builder.Services.AddScoped<IFertilizerService, FertilizerService>();
