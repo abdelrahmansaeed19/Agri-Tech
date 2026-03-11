@@ -99,6 +99,8 @@ builder.Services.AddScoped<IMarketPriceService, MarketPriceService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IImageStorageService, ImageStorageService>();
 builder.Services.AddScoped<IActivityLogService, ActivityLogService>();
+builder.Services.AddScoped<IStripePaymentService, StripePaymentService>();
+builder.Services.AddScoped<IStripeWebhookService, StripeWebhookService>();
 builder.Services.AddSingleton<IAiModelService, AiModelService>();
 
 //===================== SERVICES WITH EXTERNAL APIs =====================
