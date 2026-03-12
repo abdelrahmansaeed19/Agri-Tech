@@ -199,7 +199,13 @@ namespace AgriculturalTech.API.Controllers
             {
                 await _userManager.UpdateAsync(user);
 
-                return Ok(ApiResponse<string>.SuccessResponse(user.FcmToken, "FCM token updated successfully"));
+                var title = "Login Notification";
+
+                var body = $"You have successfully logged in at {DateTime.UtcNow}";
+
+                await _notificationService.SendNotificationAsync(user.FcmToken, title, body);
+
+                return Ok(ApiResponse<string>.SuccessResponse(user.FcmToken, "FCM token updated , Notification sent successfully!"));
             }
             catch (Exception ex)
             {
