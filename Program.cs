@@ -78,37 +78,46 @@ builder.Services.AddAuthentication(options =>
 //    googleOptions.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
 //});
 
-// ===================== FireBase Configuration (Dev) =====================
+//// ===================== FireBase Configuration (Dev) =====================
 
-// 1. Get the path to the file in the execution folder
-var keyPath = Path.Combine(AppContext.BaseDirectory, "Services/Resources", "firebase-key.json");
+//// 1. Get the path to the file in the execution folder
+//var keyPath = Path.Combine(AppContext.BaseDirectory, "Services/Resources", "firebase-key.json");
 
-if (File.Exists(keyPath))
+//if (File.Exists(keyPath))
+//{
+//    // 2. Initialize using the file directly
+//    FirebaseApp.Create(new AppOptions()
+//    {
+//        Credential = GoogleCredential.FromFile(keyPath)
+//    });
+
+//    Console.WriteLine("Firebase initialized successfully using the JSON file!");
+//}
+//else
+//{
+//    // 3. Helpful error message if you forgot Step 2
+//    Console.WriteLine($"ERROR: Firebase key file not found at: {keyPath}");
+//    // You might want to throw an exception here if notifications are mandatory
+//}
+
+
+// ===================== FireBase Configuration (Azure) =====================
+
+try
 {
-    // 2. Initialize using the file directly
+    var firebaseKey = builder.Configuration["Firebase:ConfigJson"];
+
     FirebaseApp.Create(new AppOptions()
     {
-        Credential = GoogleCredential.FromFile(keyPath)
+        Credential = GoogleCredential.FromJson(firebaseKey)
     });
 
-    Console.WriteLine("Firebase initialized successfully using the JSON file!");
+    Console.WriteLine("Firebase initialized successfully using configuration from Azure!");
 }
-else
+catch (Exception ex)
 {
-    // 3. Helpful error message if you forgot Step 2
-    Console.WriteLine($"ERROR: Firebase key file not found at: {keyPath}");
-    // You might want to throw an exception here if notifications are mandatory
+    Console.WriteLine("ERROR initializing Firebase from Azure configuration: " + ex.Message);
 }
-
-
-//// ===================== FireBase Configuration (Azure) =====================
-
-//var firebaseKey = builder.Configuration["Firebase:ConfigJson"];
-
-//FirebaseApp.Create(new AppOptions()
-//{
-//    Credential = GoogleCredential.FromJson(firebaseKey)
-//});
 
 
 // ===================== EMAIL SENDER =====================
