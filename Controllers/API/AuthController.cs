@@ -1,9 +1,11 @@
 ﻿using AgriculturalTech.API.Data.Models;
 using AgriculturalTech.API.DTOs;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using AgriculturalTech.API.Services.Implementations;
+using AgriculturalTech.API.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -20,6 +22,7 @@ namespace AgriculturalTech.API.Controllers
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IConfiguration _configuration;
         private readonly IExtendedEmailSender _emailSender;
+        private readonly INotificationService _notificationService;
 
         public AuthController(
             UserManager<ApplicationUser> userManager,
@@ -97,7 +100,6 @@ namespace AgriculturalTech.API.Controllers
             return Ok(ApiResponse<string>.SuccessResponse("", "Reset code sent successfully"));
 
         }
-
 
         [HttpPost("reset-password")]
         public async Task<ActionResult<ApiResponse<string>>> ResetPassword([FromBody] ResetPasswordDto model)
@@ -178,6 +180,64 @@ namespace AgriculturalTech.API.Controllers
             }
         }
 
+        [HttpPost("update-fcm-token")]
+        [Authorize]
+        public async Task<ActionResult<ApiResponse<string>>> UpdateFcmToken([FromBody] UpdateFcmTokenDto model)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (userId == null)
+                return Unauthorized(ApiResponse<string>.ErrorResponse("User Not Logged in."));
+
+            var user = await _userManager.FindByIdAsync(userId);
+
+            if (user == null) return NotFound(ApiResponse<string>.ErrorResponse("User not found."));
+
+            user.FcmToken = model.Token;
+
+            try
+            {
+                await _userManager.UpdateAsync(user);
+
+                return Ok(ApiResponse<string>.SuccessResponse(user.FcmToken, "FCM token updated successfully"));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResponse<string>.ErrorResponse("Failed to update FCM token", new List<string> { ex.Message }));
+            }
+        }
+
+        [HttpPost("send-login-notification")]
+        [Authorize]
+        public async Task<ActionResult<ApiResponse<string>>> SendLoginNotification()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (userId == null)
+                return Unauthorized(ApiResponse<string>.ErrorResponse("User Not Logged in."));
+
+            var user = await _userManager.FindByIdAsync(userId);
+
+            if (user == null) return NotFound(ApiResponse<string>.ErrorResponse("User not found."));
+
+            if (string.IsNullOrEmpty(user.FcmToken))
+                return BadRequest(ApiResponse<string>.ErrorResponse("FCM token not found for the user."));
+
+            try
+            {
+                var title = "Login Notification";
+
+                var body = $"You have successfully logged in at {DateTime.UtcNow}";
+
+                await _notificationService.SendNotificationAsync(user.FcmToken, title, body);
+
+                return Ok(ApiResponse<string>.SuccessResponse("", "Login notification sent successfully"));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResponse<string>.ErrorResponse("Failed to send login notification", new List<string> { ex.Message }));
+            }
+        }
 
         private string GenerateJwtToken(ApplicationUser user)
         {

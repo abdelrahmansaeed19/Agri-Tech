@@ -14,7 +14,11 @@ using AgriculturalTech.API.Services.Implementations;
 using AgriculturalTech.API.Services.Interfaces;
 using AgriculturalTech.API.Repositories.Interfaces;
 using AgriculturalTech.API.Repositories.Implementations;
-
+using FirebaseAdmin;
+using Google.Apis.Auth.OAuth2;
+//using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -74,6 +78,39 @@ builder.Services.AddAuthentication(options =>
 //    googleOptions.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
 //});
 
+// ===================== FireBase Configuration (Dev) =====================
+
+// 1. Get the path to the file in the execution folder
+var keyPath = Path.Combine(AppContext.BaseDirectory, "Services/Resources", "firebase-key.json");
+
+if (File.Exists(keyPath))
+{
+    // 2. Initialize using the file directly
+    FirebaseApp.Create(new AppOptions()
+    {
+        Credential = GoogleCredential.FromFile(keyPath)
+    });
+
+    Console.WriteLine("Firebase initialized successfully using the JSON file!");
+}
+else
+{
+    // 3. Helpful error message if you forgot Step 2
+    Console.WriteLine($"ERROR: Firebase key file not found at: {keyPath}");
+    // You might want to throw an exception here if notifications are mandatory
+}
+
+
+//// ===================== FireBase Configuration (Azure) =====================
+
+//var firebaseKey = builder.Configuration["Firebase:ConfigJson"];
+
+//FirebaseApp.Create(new AppOptions()
+//{
+//    Credential = GoogleCredential.FromJson(firebaseKey)
+//});
+
+
 // ===================== EMAIL SENDER =====================
 
 builder.Services.AddTransient<IExtendedEmailSender, EmailSender>();
@@ -105,6 +142,7 @@ builder.Services.AddScoped<IImageStorageService, ImageStorageService>();
 builder.Services.AddScoped<IActivityLogService, ActivityLogService>();
 builder.Services.AddScoped<IStripePaymentService, StripePaymentService>();
 builder.Services.AddScoped<IStripeWebhookService, StripeWebhookService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddSingleton<IAiModelService, AiModelService>();
 
 //===================== SERVICES WITH EXTERNAL APIs =====================

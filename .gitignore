@@ -426,3 +426,5 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+# Local secrets file for development, should not be checked in
+firebase-key.json

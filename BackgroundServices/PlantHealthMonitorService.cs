@@ -1,5 +1,6 @@
 using AgriculturalTech.API.Data;
 using Microsoft.EntityFrameworkCore;
+using AgriculturalTech.API.Services.Interfaces;
 
 /// <summary>
 /// Monitors plant health based on sensor data and creates alerts

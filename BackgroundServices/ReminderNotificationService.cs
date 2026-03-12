@@ -1,5 +1,6 @@
 using AgriculturalTech.API.Data;
 using Microsoft.EntityFrameworkCore;
+using AgriculturalTech.API.Services.Interfaces;
 
 /// <summary>
 /// Checks for due reminders and sends notifications every 15 minutes

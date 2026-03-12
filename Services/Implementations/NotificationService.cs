@@ -1,61 +1,97 @@
-public class NotificationService : INotificationService
+﻿using AgriculturalTech.API.Services.Interfaces;
+using FirebaseAdmin.Messaging;
+
+namespace AgriculturalTech.API.Repositories.Implementations
 {
-    private readonly IUnitOfWork _unitOfWork;
-    // In real implementation, inject push notification service (Firebase, SignalR, etc.)
-
-    public NotificationService(IUnitOfWork unitOfWork)
+    public class NotificationService : INotificationService
     {
-        _unitOfWork = unitOfWork;
-    }
+        private readonly IUnitOfWork _unitOfWork;
 
-    public async Task SendReminderNotificationAsync(string userId, CropReminder reminder)
-    {
-        var notification = new Notification
+        public NotificationService(IUnitOfWork unitOfWork)
         {
-            UserId = userId,
-            NotificationType = "Reminder",
-            Title = $"Reminder: {reminder.Title}",
-            Message = reminder.Description ?? $"It's time for: {reminder.ReminderType}",
-            ActionLink = $"/plants/{reminder.UserPlantId}"
-        };
-
-        await _unitOfWork.Notifications.AddAsync(notification);
-        await _unitOfWork.SaveChangesAsync();
-
-        // TODO: Send push notification via Firebase/SignalR
-    }
-
-    public async Task SendAlertNotificationAsync(string userId, string title, string message)
-    {
-        var notification = new Notification
+            _unitOfWork = unitOfWork;
+        }
+        public async Task SendNotificationAsync(string fcmToken, string title, string body)
         {
-            UserId = userId,
-            NotificationType = "Alert",
-            Title = title,
-            Message = message
-        };
+            if (string.IsNullOrEmpty(fcmToken)) return;
 
-        await _unitOfWork.Notifications.AddAsync(notification);
-        await _unitOfWork.SaveChangesAsync();
-    }
+            var message = new Message()
+            {
+                Token = fcmToken,
+                Notification = new FirebaseAdmin.Messaging.Notification()
+                {
+                    Title = title,
+                    Body = body
+                },
+                // Optional: Data payload for the Flutter app to handle logic
+                Data = new Dictionary<string, string>()
+                {
+                    { "click_action", "FLUTTER_NOTIFICATION_CLICK" },
+                    { "type", "sensor_alert" }
+                }
+            };
 
-    public async Task<List<Notification>> GetUnreadNotificationsAsync(string userId)
-    {
-        var notifications = await _unitOfWork.Notifications
-            .FindAsync(n => n.UserId == userId && !n.IsRead);
+            try
+            {
+                string response = await FirebaseMessaging.DefaultInstance.SendAsync(message);
+                Console.WriteLine("Successfully sent message: " + response);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error sending FCM notification: " + ex.Message);
+            }
+        }
 
-        return notifications.OrderByDescending(n => n.CreatedAt).ToList();
-    }
-
-    public async Task MarkAsReadAsync(int notificationId)
-    {
-        var notification = await _unitOfWork.Notifications.GetByIdAsync(notificationId);
-        if (notification != null)
+        public async Task SendReminderNotificationAsync(string userId, CropReminder reminder)
         {
-            notification.IsRead = true;
-            notification.ReadAt = DateTime.UtcNow;
-            _unitOfWork.Notifications.Update(notification);
+            var notification = new Notification
+            {
+                UserId = userId,
+                NotificationType = "Reminder",
+                Title = $"Reminder: {reminder.Title}",
+                Message = reminder.Description ?? $"It's time for: {reminder.ReminderType}",
+                ActionLink = $"/plants/{reminder.UserPlantId}"
+            };
+
+            await _unitOfWork.Notifications.AddAsync(notification);
             await _unitOfWork.SaveChangesAsync();
+
+            // TODO: Send push notification via Firebase/SignalR
+        }
+
+        public async Task SendAlertNotificationAsync(string userId, string title, string message)
+        {
+            var notification = new Notification
+            {
+                UserId = userId,
+                NotificationType = "Alert",
+                Title = title,
+                Message = message
+            };
+
+            await _unitOfWork.Notifications.AddAsync(notification);
+            await _unitOfWork.SaveChangesAsync();
+        }
+
+        public async Task<List<Notification>> GetUnreadNotificationsAsync(string userId)
+        {
+            var notifications = await _unitOfWork.Notifications
+                .FindAsync(n => n.UserId == userId && !n.IsRead);
+
+            return notifications.OrderByDescending(n => n.CreatedAt).ToList();
+        }
+
+        public async Task MarkAsReadAsync(int notificationId)
+        {
+            var notification = await _unitOfWork.Notifications.GetByIdAsync(notificationId);
+
+            if (notification != null)
+            {
+                notification.IsRead = true;
+                notification.ReadAt = DateTime.UtcNow;
+                _unitOfWork.Notifications.Update(notification);
+                await _unitOfWork.SaveChangesAsync();
+            }
         }
     }
 }

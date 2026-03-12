@@ -72,4 +72,10 @@ namespace AgriculturalTech.API.DTOs
         [MinLength(8)]
         public string NewPassword { get; set; }
     }
+
+    public class UpdateFcmTokenDto
+    {
+        [Required]
+        public string Token { get; set; }
+    }
 }
