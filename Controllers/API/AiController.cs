@@ -1,10 +1,7 @@
 ﻿using AgriculturalTech.API.DTOs;
 using AgriculturalTech.API.Services.Interfaces;
-using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System.Text.Json;
 
 namespace AgriculturalTech.API.Controllers.API
 {
@@ -12,16 +9,12 @@ namespace AgriculturalTech.API.Controllers.API
     [ApiController]
     public class AiController : ControllerBase
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IMapper _mapper;
-        private readonly HttpClient _httpClient;
         private readonly IAiModelService _modelService;
-        public AiController(IUnitOfWork unitOfWork, IMapper mapper, HttpClient httpClient, IAiModelService aiModelService)
+        private readonly IAiCropRecommendationService _cropRecommendationService;
+        public AiController(IAiModelService aiModelService, IAiCropRecommendationService cropRecommendationService)
         {
-            _unitOfWork = unitOfWork;
-            _mapper = mapper;
-            _httpClient = httpClient;
             _modelService = aiModelService;
+            _cropRecommendationService = cropRecommendationService;
         }
 
         [Authorize]
@@ -33,27 +26,8 @@ namespace AgriculturalTech.API.Controllers.API
                 return BadRequest("No image uploaded.");
             }
 
-            //using var content = new MultipartFormDataContent();
-            //using var stream = image.OpenReadStream();
-            //using var streamContent = new StreamContent(stream);
-
-            //// "file" matches the Python variable name
-
-            //content.Add(streamContent, "file", image.FileName);
-
-            //var pythonApiUrl = "http://127.0.0.1:8000/predict";
-
             try
             {
-                //var response = await _httpClient.PostAsync(pythonApiUrl, content);
-
-                //response.EnsureSuccessStatusCode();
-
-                //var responseString = await response.Content.ReadAsStringAsync();
-
-                //var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-                //var aiResult = JsonSerializer.Deserialize<AIResponse>(responseString, options);
-
                 using var stream = image.OpenReadStream();
 
                 AIResponse aIResponse = await _modelService.PredictAsync(stream);
@@ -66,6 +40,22 @@ namespace AgriculturalTech.API.Controllers.API
                 },
                 "Image processed successfully"));
 
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResponse<bool>.ErrorResponse("Error communicating with AI service", new List<string> { ex.Message }));
+            }
+        }
+
+        [Authorize]
+        [HttpPost("crop_recommendation")]
+        public async Task<ActionResult<ApiResponse<CropResponseDto>>> CropRecommendation([FromBody] CropRecommendationRequestDto request)
+        {
+            try
+            {
+                CropResponseDto response = await _cropRecommendationService.PredictCropAsync(request);
+
+                return Ok(ApiResponse<CropResponseDto>.SuccessResponse(response, "Crop recommendation successful"));
             }
             catch (Exception ex)
             {

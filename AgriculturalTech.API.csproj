@@ -55,6 +55,12 @@
     <Folder Include="BackgroundServices\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Services\Resources\Naive_Bayes.onnx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
   <ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>
 
 </Project>

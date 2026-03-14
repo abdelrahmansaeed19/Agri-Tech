@@ -16,9 +16,6 @@ using AgriculturalTech.API.Repositories.Interfaces;
 using AgriculturalTech.API.Repositories.Implementations;
 using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
-//using Newtonsoft.Json;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -153,6 +150,7 @@ builder.Services.AddScoped<IStripePaymentService, StripePaymentService>();
 builder.Services.AddScoped<IStripeWebhookService, StripeWebhookService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddSingleton<IAiModelService, AiModelService>();
+builder.Services.AddSingleton<IAiCropRecommendationService, AiCropRecommendationService>();
 
 //===================== SERVICES WITH EXTERNAL APIs =====================
 

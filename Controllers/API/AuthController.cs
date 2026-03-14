@@ -27,12 +27,13 @@ namespace AgriculturalTech.API.Controllers
         public AuthController(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
-            IConfiguration configuration, IExtendedEmailSender emailSender)
+            IConfiguration configuration, IExtendedEmailSender emailSender, INotificationService notificationService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _configuration = configuration;
             _emailSender = emailSender;
+            _notificationService = notificationService;
         }
 
         [HttpPost("register")]
