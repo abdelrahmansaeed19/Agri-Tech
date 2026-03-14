@@ -12,6 +12,7 @@ namespace AgriculturalTech.API.Services.Implementations
         private readonly IUnitOfWork _unitOfWork;
         private readonly IAiAuthorizationRepository _authorizationRepository;
         private readonly string _stripeWebhookSecret;
+        private readonly ILogger<StripeWebhookService> _logger;
 
         public StripeWebhookService(IUnitOfWork unitOfWork, IConfiguration config, IAiAuthorizationRepository aiAuthorizationRepository)
         {
@@ -31,12 +32,24 @@ namespace AgriculturalTech.API.Services.Implementations
 
                     case EventTypes.CheckoutSessionCompleted:
                         var session = stripeEvent.Data.Object as Session;
+
+                        _logger.LogInformation($"Received checkout session completed event for session ID: {session.Id}");
+
                         await HandleCheckoutCompletedAsync(session);
+
+                        _logger.LogInformation($"Processed checkout session completed for session ID: {session.Id}");
+
                         break;
 
                     case EventTypes.CustomerSubscriptionUpdated:
+
                         var subscription = stripeEvent.Data.Object as Subscription;
+
+                        _logger.LogInformation($"Received subscription updated event for subscription ID: {subscription.Id}");
+
                         await HandleSubscriptionUpdatedAsync(subscription);
+
+                        _logger.LogInformation($"Processed subscription updated for subscription ID: {subscription.Id}");
                         break;
                     // Handle other event types as needed
                     default:
@@ -57,14 +70,14 @@ namespace AgriculturalTech.API.Services.Implementations
         {
             var userId = session.ClientReferenceId;
 
-            if(session.Mode == "subscription")
+            if (session.Mode == "subscription")
             {
                 var newSubscription = new UserSubscription
                 {
                     UserId = userId,
                     StripeSubscriptionId = session.SubscriptionId,
                     StripeCustomerId = session.CustomerId,
-                    SubscriptionStatus = enSubscriptionStatus.Active,
+                    SubscriptionStatus = ParseStripeSubscriptionStatus(enSubscriptionStatus.Active),
                     CurrentPeriodStart = DateTime.UtcNow,
                     CurrentPeriodEnd = DateTime.UtcNow.AddMonths(1), // Assuming a 1-month subscription
                 };
@@ -77,7 +90,7 @@ namespace AgriculturalTech.API.Services.Implementations
             }
             else if (session.Mode == "payment")
             {
-                if(session.Metadata.TryGetValue("PurchaseType", out string purchaseType) && purchaseType == "KitDevice")
+                if (session.Metadata.TryGetValue("PurchaseType", out string purchaseType) && purchaseType == "KitDevice")
                 {
                     var newDevice = new SensorDevice
                     {
@@ -97,9 +110,11 @@ namespace AgriculturalTech.API.Services.Implementations
             var subscription = await _unitOfWork.UserSubscriptions
                 .FirstOrDefaultAsync(s => s.StripeSubscriptionId == stripeSub.Id);
 
+            _logger.LogInformation($"Updating subscription with Stripe ID: {stripeSub.Id} for user subscription ID: {subscription?.Id}");
+
             if (subscription != null)
             {
-                subscription.SubscriptionStatus = ParseStripeStatus(stripeSub.Status);
+                subscription.SubscriptionStatus = stripeSub.Status;
 
                 var primaryItem = stripeSub.Items.Data.FirstOrDefault();
 
@@ -110,22 +125,24 @@ namespace AgriculturalTech.API.Services.Implementations
 
                 subscription.CancelAtPeriodEnd = stripeSub.CancelAtPeriodEnd;
 
+                _logger.LogInformation($"Subscription status updated to: {subscription.SubscriptionStatus}, Current period end: {subscription.CurrentPeriodEnd}, Cancel at period end: {subscription.CancelAtPeriodEnd}");
+
                 _unitOfWork.UserSubscriptions.Update(subscription);
 
                 await _unitOfWork.SaveChangesAsync();
             }
         }
 
-        private enSubscriptionStatus ParseStripeStatus(string stripeStatus)
+        private string ParseStripeSubscriptionStatus(enSubscriptionStatus enSubscriptionStatus)
         {
-            return stripeStatus.ToLower() switch
+            return enSubscriptionStatus switch
             {
-                "active" => enSubscriptionStatus.Active,
-                "past_due" => enSubscriptionStatus.PastDue,
-                "canceled" => enSubscriptionStatus.Canceled,
-                "unpaid" => enSubscriptionStatus.Unpaid,
-                "incomplete" => enSubscriptionStatus.Incomplete,
-                _ => enSubscriptionStatus.Canceled // Fallback
+                enSubscriptionStatus.Active => "active",
+                enSubscriptionStatus.PastDue => "past_due",
+                enSubscriptionStatus.Canceled => "canceled",
+                enSubscriptionStatus.Unpaid => "unpaid",
+                enSubscriptionStatus.Incomplete => "incomplete",
+                _ => "canceled" // Fallback
             };
         }
     }
