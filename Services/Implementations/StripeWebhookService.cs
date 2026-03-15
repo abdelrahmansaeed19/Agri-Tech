@@ -33,11 +33,15 @@ namespace AgriculturalTech.API.Services.Implementations
                     case EventTypes.CheckoutSessionCompleted:
                         var session = stripeEvent.Data.Object as Session;
 
+                        _logger.LogInformation("==================================================");
                         _logger.LogInformation($"Received checkout session completed event for session ID: {session.Id}");
+                        _logger.LogInformation("==================================================");
 
                         await HandleCheckoutCompletedAsync(session);
 
+                        _logger.LogInformation("==================================================");
                         _logger.LogInformation($"Processed checkout session completed for session ID: {session.Id}");
+                        _logger.LogInformation("==================================================");
 
                         break;
 
@@ -45,11 +49,16 @@ namespace AgriculturalTech.API.Services.Implementations
 
                         var subscription = stripeEvent.Data.Object as Subscription;
 
+                        _logger.LogInformation("==================================================");
                         _logger.LogInformation($"Received subscription updated event for subscription ID: {subscription.Id}");
+                        _logger.LogInformation("==================================================");
 
                         await HandleSubscriptionUpdatedAsync(subscription);
 
+                        _logger.LogInformation("==================================================");
                         _logger.LogInformation($"Processed subscription updated for subscription ID: {subscription.Id}");
+                        _logger.LogInformation("==================================================");
+
                         break;
                     // Handle other event types as needed
                     default:
@@ -110,7 +119,9 @@ namespace AgriculturalTech.API.Services.Implementations
             var subscription = await _unitOfWork.UserSubscriptions
                 .FirstOrDefaultAsync(s => s.StripeSubscriptionId == stripeSub.Id);
 
+            _logger.LogInformation("==================================================");
             _logger.LogInformation($"Updating subscription with Stripe ID: {stripeSub.Id} for user subscription ID: {subscription?.Id}");
+            _logger.LogInformation("==================================================");
 
             if (subscription != null)
             {
@@ -125,7 +136,9 @@ namespace AgriculturalTech.API.Services.Implementations
 
                 subscription.CancelAtPeriodEnd = stripeSub.CancelAtPeriodEnd;
 
+                _logger.LogInformation("==================================================");
                 _logger.LogInformation($"Subscription status updated to: {subscription.SubscriptionStatus}, Current period end: {subscription.CurrentPeriodEnd}, Cancel at period end: {subscription.CancelAtPeriodEnd}");
+                _logger.LogInformation("==================================================");
 
                 _unitOfWork.UserSubscriptions.Update(subscription);
 
