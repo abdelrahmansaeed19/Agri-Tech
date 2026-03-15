@@ -14,11 +14,12 @@ namespace AgriculturalTech.API.Services.Implementations
         private readonly string _stripeWebhookSecret;
         private readonly ILogger<StripeWebhookService> _logger;
 
-        public StripeWebhookService(IUnitOfWork unitOfWork, IConfiguration config, IAiAuthorizationRepository aiAuthorizationRepository)
+        public StripeWebhookService(IUnitOfWork unitOfWork, IConfiguration config, IAiAuthorizationRepository aiAuthorizationRepository, ILogger<StripeWebhookService> logger)
         {
             _unitOfWork = unitOfWork;
             _authorizationRepository = aiAuthorizationRepository;
             _stripeWebhookSecret = config["Stripe:WebhookSecret"];
+            _logger = logger;
         }
 
         public async Task ProcessStripeEventAsync(string json, string signatureHeader)

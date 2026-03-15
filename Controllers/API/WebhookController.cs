@@ -11,9 +11,10 @@ namespace AgriculturalTech.API.Controllers.API
         private readonly IStripeWebhookService _webhookService;
         private readonly ILogger<WebhookController> _logger;
 
-        public WebhookController(IStripeWebhookService webhookService)
+        public WebhookController(IStripeWebhookService webhookService, ILogger<WebhookController> logger)
         {
             _webhookService = webhookService;
+            _logger = logger;
         }
 
         [HttpPost("stripe")]
