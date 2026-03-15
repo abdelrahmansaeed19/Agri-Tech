@@ -24,7 +24,7 @@ namespace AgriculturalTech.API.Data.Models
 
         public bool IsPremiumUser { get; set; } = false;
 
-        public int LifetimeFreeScansUsed { get; set; } = 0;
+        public int LifetimeScansUsed { get; set; } = 0;
 
         public string? FcmToken { get; set; }
 

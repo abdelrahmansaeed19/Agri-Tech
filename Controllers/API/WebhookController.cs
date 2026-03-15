@@ -25,7 +25,7 @@ namespace AgriculturalTech.API.Controllers.API
             var signatureHeader = Request.Headers["Stripe-Signature"];
 
             _logger.LogInformation("==================================================");
-            _logger.LogInformation("DEBUG: Received Stripe webhook event: {EventData}", json);
+            _logger.LogInformation("DEBUG: Received Stripe webhook event");
             _logger.LogInformation("==================================================");
 
             try
@@ -33,7 +33,7 @@ namespace AgriculturalTech.API.Controllers.API
                 await _webhookService.ProcessStripeEventAsync(json, signatureHeader);
 
                 _logger.LogInformation("==================================================");
-                _logger.LogInformation("Successfully processed Stripe webhook event.");
+                _logger.LogInformation("DEBUG: Successfully processed Stripe webhook event.");
                 _logger.LogInformation("==================================================");
 
                 return Ok(); // You MUST return 200 OK so Stripe knows you received it

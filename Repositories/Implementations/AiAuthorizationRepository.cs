@@ -10,18 +10,13 @@ namespace AgriculturalTech.API.Repositories.Implementations
         public AiAuthorizationRepository(ApplicationDbContext context) : base(context) { }
 
 
-        public async Task SetUserAsPremium(string userId)
+        public async Task ToggleUserPremium(string userId)
         {
             var user = await _dbSet.FindAsync(userId);
 
             if (user != null)
             {
-                if(user.IsPremiumUser)
-                {
-                    throw new Exception("User is already a premium user");
-                }
-
-                user.IsPremiumUser = true;
+                user.IsPremiumUser = !user.IsPremiumUser;
 
                 _dbSet.Update(user);
 
@@ -38,10 +33,10 @@ namespace AgriculturalTech.API.Repositories.Implementations
 
             var user = await _dbSet
                 .Where(u => u.Id == userId)
-                .Select(u => new { u.LifetimeFreeScansUsed, u.IsPremiumUser })
+                .Select(u => new { u.LifetimeScansUsed, u.IsPremiumUser })
                 .FirstOrDefaultAsync();
 
-            return user != null && (user.IsPremiumUser || user.LifetimeFreeScansUsed < 5);
+            return user != null && (user.IsPremiumUser || user.LifetimeScansUsed < 5);
         }
 
         public async Task RecordSuccessfulScanAsync(string userId)
@@ -50,7 +45,7 @@ namespace AgriculturalTech.API.Repositories.Implementations
 
             if (user != null)
             {
-                user.LifetimeFreeScansUsed += 1;
+                user.LifetimeScansUsed += 1;
 
                 _dbSet.Update(user);
 

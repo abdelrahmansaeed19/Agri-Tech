@@ -1,7 +1,11 @@
-﻿using AgriculturalTech.API.DTOs;
+﻿using AgriculturalTech.API.Data.Models;
+using AgriculturalTech.API.DTOs;
+using AgriculturalTech.API.Repositories.Interfaces;
 using AgriculturalTech.API.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace AgriculturalTech.API.Controllers.API
 {
@@ -11,10 +15,12 @@ namespace AgriculturalTech.API.Controllers.API
     {
         private readonly IAiModelService _modelService;
         private readonly IAiCropRecommendationService _cropRecommendationService;
-        public AiController(IAiModelService aiModelService, IAiCropRecommendationService cropRecommendationService)
+        private readonly IAiAuthorizationRepository _aiAuthorizationRepository;
+        public AiController(IAiModelService aiModelService, IAiCropRecommendationService cropRecommendationService, IAiAuthorizationRepository aiAuthorizationRepository)
         {
             _modelService = aiModelService;
             _cropRecommendationService = cropRecommendationService;
+            _aiAuthorizationRepository = aiAuthorizationRepository;
         }
 
         [Authorize]
@@ -26,11 +32,21 @@ namespace AgriculturalTech.API.Controllers.API
                 return BadRequest("No image uploaded.");
             }
 
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if(userId == null) 
+                return Unauthorized("User not Authorized.");
+
+            if(!await _aiAuthorizationRepository.CanUserRunAiScanAsync(userId))
+                return BadRequest("User has exceeded the Free number of AI scans. Please Subscribe to Go.");
+
             try
             {
                 using var stream = image.OpenReadStream();
 
                 AIResponse aIResponse = await _modelService.PredictAsync(stream);
+
+                await _aiAuthorizationRepository.RecordSuccessfulScanAsync(userId);
 
                 return Ok(ApiResponse<AIResponse>.SuccessResponse(new AIResponse
                 {

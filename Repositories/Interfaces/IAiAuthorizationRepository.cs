@@ -8,7 +8,7 @@
         /// <param name="userId">The ID of the user to check.</param>
         /// <returns>True if the user is authorized to use the AI feature, false otherwise.</returns>
         /// 
-        Task SetUserAsPremium(string userId);
+        Task ToggleUserPremium(string userId);
         Task<bool> CanUserRunAiScanAsync(string userId);
 
         Task RecordSuccessfulScanAsync(string userId);
