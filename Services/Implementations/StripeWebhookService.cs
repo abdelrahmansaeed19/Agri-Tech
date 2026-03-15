@@ -91,6 +91,10 @@ namespace AgriculturalTech.API.Services.Implementations
                     CurrentPeriodEnd = DateTime.UtcNow.AddMonths(1), // Assuming a 1-month subscription
                 };
 
+                _logger.LogInformation("==================================================");
+                _logger.LogInformation($"Creating new subscription for user ID: {userId} with Stripe subscription ID: {newSubscription.StripeSubscriptionId}");
+                _logger.LogInformation("==================================================");
+
                 await _unitOfWork.UserSubscriptions.AddAsync(newSubscription);
 
                 await _unitOfWork.SaveChangesAsync();
@@ -106,6 +110,10 @@ namespace AgriculturalTech.API.Services.Implementations
                         UserId = userId,
                         MacAddress = "Pending_Setup",
                     };
+
+                    _logger.LogInformation("==================================================");
+                    _logger.LogInformation($"Creating new sensor device for user ID: {userId} due to kit purchase");
+                    _logger.LogInformation("==================================================");
 
                     await _unitOfWork.SensorDevices.AddAsync(newDevice);
 
