@@ -2,13 +2,14 @@
 using Microsoft.ML.OnnxRuntime;
 using Microsoft.ML.OnnxRuntime.Tensors;
 using AgriculturalTech.API.DTOs;
+using System.Text.Json;
 
 namespace AgriculturalTech.API.Services.Implementations
 {
     public class AiCropRecommendationService : IAiCropRecommendationService
     {
         private readonly InferenceSession _session;
-
+        private readonly List<string> _cropNames;
         public AiCropRecommendationService()
         {
             string basePath = AppDomain.CurrentDomain.BaseDirectory;
@@ -16,6 +17,26 @@ namespace AgriculturalTech.API.Services.Implementations
             string modelPath = Path.Combine(basePath, "Services/Resources", "Naive_Bayes.onnx");
 
             _session = new InferenceSession(modelPath);
+
+            // 2. تحميل وقراءة ملف الـ JSON
+            try
+            {
+                string cropNamesPath = Path.Combine(basePath, "Services/Resources", "crop_names.json");
+
+                string jsonContent = File.ReadAllText(cropNamesPath);
+
+                // تحويل الـ JSON إلى List من الـ Strings
+                _cropNames = JsonSerializer.Deserialize<List<string>>(jsonContent);
+
+                if (_cropNames == null || _cropNames.Count == 0)
+                    throw new Exception("Crop names file is empty or invalid.");
+
+                Console.WriteLine($"✅ Loaded {_cropNames.Count} classes from JSON.");
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"❌ Failed to load class names: {ex.Message}");
+            }
         }
 
         public async Task<CropResponseDto> PredictCropAsync(CropRecommendationRequestDto request)
@@ -45,10 +66,41 @@ namespace AgriculturalTech.API.Services.Implementations
             if (predictionOutput is IEnumerable<string> stringResult)
             {
                 recommendedCrop = stringResult.First();
+
+                Console.WriteLine("✅ Predicted crop (string output): " + recommendedCrop);
             }
             else if (predictionOutput is IEnumerable<long> longResult)
             {
-                recommendedCrop = longResult.First().ToString();
+                int index = (int)longResult.First();
+
+                if(index >= 0 && index < _cropNames.Count)
+                {
+                    recommendedCrop = _cropNames[index];
+
+                    Console.WriteLine("✅ Predicted crop (long index output): " + recommendedCrop);
+                }
+                else
+                {
+                    Console.WriteLine($"⚠️ Warning: Predicted index {index} is out of bounds for crop names list.");
+
+                    throw new Exception("Predicted index is out of bounds for crop names list.");
+                }
+            }
+            else if (predictionOutput is IEnumerable<int> intResult)
+            {
+                int index = intResult.First();
+
+                if(index >= 0 && index < _cropNames.Count)
+                {
+                    recommendedCrop = _cropNames[index];
+
+                    Console.WriteLine("✅ Predicted crop (int index output): " + recommendedCrop);
+                }
+                else
+                {
+                    Console.WriteLine($"⚠️ Warning: Predicted index {index} is out of bounds for crop names list.");
+                    throw new Exception("Predicted index is out of bounds for crop names list.");
+                }
             }
 
             return new CropResponseDto

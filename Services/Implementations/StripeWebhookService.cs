@@ -179,7 +179,9 @@ namespace AgriculturalTech.API.Services.Implementations
                     subscription.CurrentPeriodEnd = primaryItem.CurrentPeriodEnd;
                 }
 
-                subscription.CancelAtPeriodEnd = stripeSub.CancelAtPeriodEnd;
+                _logger.LogInformation($"the cancel_at object value is {stripeSub.CancelAt}");
+
+                subscription.CancelAtPeriodEnd = stripeSub.CancelAt != null;
 
                 _logger.LogInformation("==================================================");
                 _logger.LogInformation($"DEBUG: Subscription status updated to: {subscription.SubscriptionStatus}, Current period end: {subscription.CurrentPeriodEnd}, Cancel at period end: {subscription.CancelAtPeriodEnd}");
