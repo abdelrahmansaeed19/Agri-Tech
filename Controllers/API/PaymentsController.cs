@@ -75,4 +75,5 @@ namespace AgriculturalTech.API.Controllers.API
                 return BadRequest(ApiResponse<string>.ErrorResponse("Failed to create kit purchase checkout session.", new List<string> { ex.Message }));
             }
         }
+    }
 }
