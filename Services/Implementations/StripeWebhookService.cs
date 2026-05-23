@@ -156,6 +156,12 @@ namespace AgriculturalTech.API.Services.Implementations
 
                     await _unitOfWork.SaveChangesAsync();
                 }
+                else
+                {
+                    _logger.LogInformation("==================================================");
+                    _logger.LogInformation($"DEBUG: Received payment session for user ID: {userId} with no recognized purchase type. No action taken.");
+                    _logger.LogInformation("==================================================");
+                }
             }
         }
 

@@ -9,11 +9,11 @@ namespace AgriculturalTech.API.Controllers.API
     [Authorize]
     [Route("api/[controller]")]
     [ApiController]
-    public class SubscriptionsController : ControllerBase
+    public class PaymentsController : ControllerBase
     {
         private readonly IStripePaymentService _stripePaymentService;
 
-        public SubscriptionsController(IStripePaymentService stripePaymentService)
+        public PaymentsController(IStripePaymentService stripePaymentService)
         {
             _stripePaymentService = stripePaymentService;
         }
@@ -52,5 +52,27 @@ namespace AgriculturalTech.API.Controllers.API
                 return BadRequest(ApiResponse<string>.ErrorResponse("Failed to create billing portal session.", new List<string> { ex.Message }));
             }
         }
-    }
+
+        [HttpPost("purchase-kit")]
+        public async Task<ActionResult<ApiResponse<string>>> PurchaseKit()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userEmail = User.FindFirstValue(ClaimTypes.Email);
+
+            if (userId == null || userEmail == null)
+            {
+                return Unauthorized(ApiResponse<string>.ErrorResponse("User information is missing."));
+            }
+
+            try
+            {
+                var resultUrl = await _stripePaymentService.CreateKitCheckoutSessionAsync(userId, userEmail);
+
+                return Ok(ApiResponse<string>.SuccessResponse(resultUrl, "Kit purchase checkout session created successfully."));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResponse<string>.ErrorResponse("Failed to create kit purchase checkout session.", new List<string> { ex.Message }));
+            }
+        }
 }
