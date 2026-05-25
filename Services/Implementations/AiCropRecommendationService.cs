@@ -14,7 +14,7 @@ namespace AgriculturalTech.API.Services.Implementations
         {
             string basePath = AppDomain.CurrentDomain.BaseDirectory;
 
-            string modelPath = Path.Combine(basePath, "Services/Resources", "Naive_Bayes.onnx");
+            string modelPath = Path.Combine(basePath, "Services/Resources", "Crop_Recommendation_Pipeline.onnx");
 
             _session = new InferenceSession(modelPath);
 

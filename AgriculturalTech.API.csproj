@@ -56,6 +56,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Services\Resources\Crop_Recommendation_Pipeline.onnx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Services\Resources\Naive_Bayes.onnx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
