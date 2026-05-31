@@ -36,7 +36,7 @@ namespace AgriculturalTech.API.Controllers.API
                 _logger.LogInformation("DEBUG: Successfully processed Stripe webhook event.");
                 _logger.LogInformation("==================================================");
 
-                return Ok(); // You MUST return 200 OK so Stripe knows you received it
+                return Ok(); // MUST return 200 OK so Stripe knows that it is received
             }
             catch (Exception)
             {

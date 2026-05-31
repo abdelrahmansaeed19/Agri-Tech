@@ -6,6 +6,8 @@ namespace AgriculturalTech.API.Repositories.Interfaces
     {
         Task<UserSubscription> GetSubscriptionByUserIdAsync(string userId);
 
+        Task<bool> IsSubscribedByUserIdAsync(string userId);
+
         Task AddSubscriptionAsync(UserSubscription subscription);
 
         Task UpdateSubscriptionAsync(UserSubscription subscription);

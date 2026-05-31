@@ -1,5 +1,6 @@
 ﻿using AgriculturalTech.API.DTOs;
 using AgriculturalTech.API.Services.Interfaces;
+using AgriculturalTech.API.Repositories.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -12,10 +13,12 @@ namespace AgriculturalTech.API.Controllers.API
     public class PaymentsController : ControllerBase
     {
         private readonly IStripePaymentService _stripePaymentService;
+        private readonly IUserSubscriptionRepository _userSubscriptionRepository;
 
-        public PaymentsController(IStripePaymentService stripePaymentService)
+        public PaymentsController(IStripePaymentService stripePaymentService, IUserSubscriptionRepository userSubscriptionRepository)
         {
             _stripePaymentService = stripePaymentService;
+            _userSubscriptionRepository = userSubscriptionRepository;
         }
 
         [HttpPost("subscribe")]
@@ -23,6 +26,18 @@ namespace AgriculturalTech.API.Controllers.API
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var userEmail = User.FindFirstValue(ClaimTypes.Email);
+
+            var sub = await _userSubscriptionRepository.GetSubscriptionByUserIdAsync(userId);
+
+            if(sub != null)
+            {
+                return BadRequest(ApiResponse<string>.ErrorResponse("User already has an active subscription."));
+            }
+
+            if(sub.CancelAtPeriodEnd)
+            {
+                return BadRequest(ApiResponse<string>.ErrorResponse($"User already has an active subscription but will end at {sub.CurrentPeriodEnd} if not updated by user"));
+            }
 
             try
             {
@@ -40,6 +55,13 @@ namespace AgriculturalTech.API.Controllers.API
         public async Task<ActionResult<ApiResponse<string>>> ManageBilling()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var sub = await _userSubscriptionRepository.GetSubscriptionByUserIdAsync(userId);
+
+            if (sub == null)
+            {
+                return BadRequest(ApiResponse<string>.ErrorResponse("User is not subscriped."));
+            }
 
             try
             {
