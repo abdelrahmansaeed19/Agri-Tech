@@ -31,12 +31,13 @@ namespace AgriculturalTech.API.Controllers.API
 
             if(sub != null)
             {
-                return BadRequest(ApiResponse<string>.ErrorResponse("User already has an active subscription."));
-            }
 
-            if(sub.CancelAtPeriodEnd)
-            {
-                return BadRequest(ApiResponse<string>.ErrorResponse($"User already has an active subscription but will end at {sub.CurrentPeriodEnd} if not updated by user"));
+                if (sub.CancelAtPeriodEnd)
+                {
+                    return BadRequest(ApiResponse<string>.ErrorResponse($"User already has an active subscription but will end at {sub.CurrentPeriodEnd} if not updated by user"));
+                }
+
+                return BadRequest(ApiResponse<string>.ErrorResponse("User already has an active subscription."));
             }
 
             try
