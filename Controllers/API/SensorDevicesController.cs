@@ -93,15 +93,21 @@ namespace AgriculturalTech.API.Controllers
             if (user == null)
                 return NotFound("User not found");
 
-            var RegisteredDevice = user.SensorDevices.FirstOrDefault(d => d.MacAddress == dto.MacAddress);
+            //var RegisteredDevice = user.SensorDevices.FirstOrDefault(d => d.MacAddress == dto.MacAddress);
+
+            var RegisteredDevice = await _unitOfWork.SensorDevices
+                .FirstOrDefaultAsync(d => d.MacAddress == dto.MacAddress);
 
 
             if (RegisteredDevice != null)
                 return BadRequest("Mac Address already registered");
 
-            var pendingDevice = user.SensorDevices.FirstOrDefault(d => d.UserId == user.Id);
+            //var pendingDevice = user.SensorDevices.FirstOrDefault(d => d.UserId == user.Id);
 
-            if(pendingDevice == null)
+            var pendingDevice = await _unitOfWork.SensorDevices
+                .FirstOrDefaultAsync(d => d.UserId == user.Id);
+
+            if (pendingDevice == null)
                 return BadRequest("No pending device found for this user");
 
             pendingDevice.MacAddress = dto.MacAddress;
