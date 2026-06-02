@@ -131,16 +131,12 @@ namespace AgriculturalTech.API.Controllers
         public async Task<ActionResult<ApiResponse<bool>>> SubmitReading([FromBody] CreateSensorReadingDto dto)
         {
 
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            if (userId == null) return NotFound(ApiResponse<bool>.ErrorResponse("User not authenticated, Please Log in First!"));
-
             // Verify device exists and belongs to user
             var sensorDevice = await _unitOfWork.SensorDevices
-                .FirstOrDefaultAsync(d => d.UserId == userId);
+                .FirstOrDefaultAsync(d => d.MacAddress == dto.MacAddress);
 
             if (sensorDevice == null)
-                return NotFound(ApiResponse<bool>.ErrorResponse("Device not found or not activated"));
+                return NotFound(ApiResponse<bool>.ErrorResponse("Device not Registerd"));
 
             if(!sensorDevice.IsActive)
                 return BadRequest(ApiResponse<bool>.ErrorResponse("Device not activated"));
