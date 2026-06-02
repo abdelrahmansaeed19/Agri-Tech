@@ -62,8 +62,8 @@ namespace AgriculturalTech.API.Services.Implementations
                     },
                 },
                 Mode = "payment",
-                SuccessUrl = "smartplant://payment/success",
-                CancelUrl = "smartplant://payment/cancel",
+                SuccessUrl = "smartplant://payment/kit-success",
+                CancelUrl = "smartplant://payment/kit-cancel",
                 ClientReferenceId = userId,
 
                 Metadata = new Dictionary<string, string>
