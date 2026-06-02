@@ -91,18 +91,18 @@ namespace AgriculturalTech.API.Controllers
             var user = await _userManager.FindByEmailAsync(dto.UserEmail);
 
             if (user == null)
-                return NotFound(ApiResponse<SensorDeviceDto>.ErrorResponse("User not found"));
+                return NotFound("User not found");
 
             var RegisteredDevice = user.SensorDevices.FirstOrDefault(d => d.MacAddress == dto.MacAddress);
 
 
             if (RegisteredDevice != null)
-                return BadRequest(ApiResponse<SensorDeviceDto>.ErrorResponse("Mac Address already registered"));
+                return BadRequest("Mac Address already registered");
 
             var pendingDevice = user.SensorDevices.FirstOrDefault(d => d.UserId == user.Id);
 
             if(pendingDevice == null)
-                return BadRequest(ApiResponse<SensorDeviceDto>.ErrorResponse("No pending device found for this user"));
+                return BadRequest("No pending device found for this user");
 
             pendingDevice.MacAddress = dto.MacAddress;
             pendingDevice.Status = "Pending";
