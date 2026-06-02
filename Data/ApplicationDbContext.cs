@@ -162,11 +162,6 @@ namespace AgriculturalTech.API.Data
                     .HasForeignKey(d => d.UserId)
                     .OnDelete(DeleteBehavior.Cascade);
 
-                entity.HasOne(d => d.Device)
-                    .WithMany(p => p.SensorDevices)
-                    .HasForeignKey(d => d.MacAddress)
-                    .OnDelete(DeleteBehavior.Restrict);
-
                 entity.HasIndex(e => e.MacAddress).IsUnique();
                 entity.HasIndex(e => e.UserId);
                 entity.HasIndex(e => e.Status);

@@ -32,9 +32,8 @@ public class SensorDevice
     [Required]
     public virtual ApplicationUser User { get; set; }
 
-    [ForeignKey("DeviceId")]
-    [Required]
-    public virtual Device Device { get; set; }
+    //[ForeignKey("DeviceId")]
+    //public virtual Device? Device { get; set; }
 
     // Navigation Properties
     public virtual ICollection<SensorReading> SensorReadings { get; set; } = new List<SensorReading>();

@@ -4,6 +4,7 @@ using AgriculturalTech.API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AgriculturalTech.API.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260602053928_RemoveDeviceForeignKey")]
+    partial class RemoveDeviceForeignKey
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -267,7 +270,7 @@ namespace AgriculturalTech.API.Data.Migrations
                         {
                             Id = 1,
                             Category = "Vegetables",
-                            CreatedAt = new DateTime(2026, 6, 2, 5, 51, 8, 669, DateTimeKind.Utc).AddTicks(7322),
+                            CreatedAt = new DateTime(2026, 6, 2, 5, 39, 28, 414, DateTimeKind.Utc).AddTicks(2509),
                             DescriptionAr = "خضار شائعة في الحدائق",
                             DescriptionEn = "Popular garden vegetable",
                             GrowingDurationDays = 75,
@@ -287,7 +290,7 @@ namespace AgriculturalTech.API.Data.Migrations
                         {
                             Id = 2,
                             Category = "Grains",
-                            CreatedAt = new DateTime(2026, 6, 2, 5, 51, 8, 669, DateTimeKind.Utc).AddTicks(7349),
+                            CreatedAt = new DateTime(2026, 6, 2, 5, 39, 28, 414, DateTimeKind.Utc).AddTicks(2525),
                             DescriptionAr = "محصول حبوب أساسي",
                             DescriptionEn = "Staple grain crop",
                             GrowingDurationDays = 120,
@@ -307,7 +310,7 @@ namespace AgriculturalTech.API.Data.Migrations
                         {
                             Id = 3,
                             Category = "Grains",
-                            CreatedAt = new DateTime(2026, 6, 2, 5, 51, 8, 669, DateTimeKind.Utc).AddTicks(7354),
+                            CreatedAt = new DateTime(2026, 6, 2, 5, 39, 28, 414, DateTimeKind.Utc).AddTicks(2530),
                             DescriptionAr = "حبوب غذائية مهمة",
                             DescriptionEn = "Important cereal grain",
                             GrowingDurationDays = 90,
@@ -327,7 +330,7 @@ namespace AgriculturalTech.API.Data.Migrations
                         {
                             Id = 4,
                             Category = "Vegetables",
-                            CreatedAt = new DateTime(2026, 6, 2, 5, 51, 8, 669, DateTimeKind.Utc).AddTicks(7358),
+                            CreatedAt = new DateTime(2026, 6, 2, 5, 39, 28, 414, DateTimeKind.Utc).AddTicks(2533),
                             DescriptionAr = "محصول خضار جذري",
                             DescriptionEn = "Root vegetable crop",
                             GrowingDurationDays = 100,
@@ -347,7 +350,7 @@ namespace AgriculturalTech.API.Data.Migrations
                         {
                             Id = 5,
                             Category = "Grains",
-                            CreatedAt = new DateTime(2026, 6, 2, 5, 51, 8, 669, DateTimeKind.Utc).AddTicks(7362),
+                            CreatedAt = new DateTime(2026, 6, 2, 5, 39, 28, 414, DateTimeKind.Utc).AddTicks(2537),
                             DescriptionAr = "حبوب غذائية أساسية",
                             DescriptionEn = "Staple food grain",
                             GrowingDurationDays = 120,
@@ -1230,6 +1233,9 @@ namespace AgriculturalTech.API.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("DeviceId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<DateTime>("InstalledAt")
                         .HasColumnType("datetime2");
 
@@ -1253,6 +1259,8 @@ namespace AgriculturalTech.API.Data.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DeviceId");
 
                     b.HasIndex("MacAddress")
                         .IsUnique();
@@ -1658,6 +1666,10 @@ namespace AgriculturalTech.API.Data.Migrations
 
             modelBuilder.Entity("SensorDevice", b =>
                 {
+                    b.HasOne("AgriculturalTech.API.Data.Models.Device", null)
+                        .WithMany("SensorDevices")
+                        .HasForeignKey("DeviceId");
+
                     b.HasOne("AgriculturalTech.API.Data.Models.ApplicationUser", "User")
                         .WithMany("SensorDevices")
                         .HasForeignKey("UserId")
@@ -1718,6 +1730,11 @@ namespace AgriculturalTech.API.Data.Migrations
                     b.Navigation("FertilizerRecommendations");
 
                     b.Navigation("UserPlants");
+                });
+
+            modelBuilder.Entity("AgriculturalTech.API.Data.Models.Device", b =>
+                {
+                    b.Navigation("SensorDevices");
                 });
 
             modelBuilder.Entity("AgriculturalTech.API.Data.Models.UserPlant", b =>

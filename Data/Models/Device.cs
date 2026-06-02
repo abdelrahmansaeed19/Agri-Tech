@@ -21,6 +21,6 @@ namespace AgriculturalTech.API.Data.Models
 
         public string? Description { get; set; }
 
-        public virtual ICollection<SensorDevice> SensorDevices { get; set; } = new List<SensorDevice>();
+        //public virtual ICollection<SensorDevice> SensorDevices { get; set; } = new List<SensorDevice>();
     }
 }
