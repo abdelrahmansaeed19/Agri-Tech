@@ -32,8 +32,8 @@ public class DeviceDto
 
 public class CreateSensorReadingDto
 {
-    [Required]
-    public string DeviceId { get; set; }
+    //[Required]
+    //public string DeviceId { get; set; }
 
     //public int? UserPlantId { get; set; }
     public decimal? Nitrogen { get; set; }
