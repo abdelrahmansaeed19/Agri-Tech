@@ -111,9 +111,9 @@ namespace AgriculturalTech.API.Controllers
                 return BadRequest("No pending device found for this user");
 
             pendingDevice.MacAddress = dto.MacAddress;
-            pendingDevice.Status = "Pending";
             pendingDevice.IsActive = false;
             pendingDevice.InstalledAt = DateTime.Now;
+            pendingDevice.LastSyncAt = DateTime.Now;
 
             _unitOfWork.SensorDevices.Update(pendingDevice);
 

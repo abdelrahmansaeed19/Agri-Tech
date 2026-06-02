@@ -145,7 +145,8 @@ namespace AgriculturalTech.API.Services.Implementations
                     var newDevice = new SensorDevice
                     {
                         UserId = userId,
-                        MacAddress = "Pending_Setup",
+                        MacAddress = "Pending Registration",
+                        Status = "Pending Activation",
                     };
 
                     _logger.LogInformation("==================================================");
