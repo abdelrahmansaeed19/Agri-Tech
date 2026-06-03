@@ -1,9 +1,11 @@
 using AgriculturalTech.API.Data.Models;
 using AgriculturalTech.API.DTOs;
+using AgriculturalTech.API.Repositories.Interfaces;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Stripe;
 using System.Security.Claims;
 
 namespace AgriculturalTech.API.Controllers
@@ -14,12 +16,14 @@ namespace AgriculturalTech.API.Controllers
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly ISensorDevicesRepository _sensorDevicesRepository;
         private readonly UserManager<ApplicationUser> _userManager;
 
-        public SensorDevicesController(IUnitOfWork unitOfWork, IMapper mapper, UserManager<ApplicationUser> userManager)
+        public SensorDevicesController(IUnitOfWork unitOfWork, IMapper mapper, ISensorDevicesRepository sensorDevicesRepository, UserManager<ApplicationUser> userManager)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _sensorDevicesRepository = sensorDevicesRepository;
             _userManager = userManager;
         }
 
@@ -35,6 +39,31 @@ namespace AgriculturalTech.API.Controllers
             var deviceDtos = _mapper.Map<List<SensorDeviceDto>>(devices);
 
             return Ok(ApiResponse<List<SensorDeviceDto>>.SuccessResponse(deviceDtos));
+        }
+
+        [HttpGet("user-device-status")]
+        [Authorize]
+        public async Task<ActionResult<ApiResponse<UserDeviceStatusDto>>> GetUserDeviceStatus()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if(userId == null)
+            {
+                return Unauthorized("User not authenticated");
+            }
+
+
+            var device = await _sensorDevicesRepository.GetDeviceByUserIdAsync(userId);
+
+            var statusDto = new UserDeviceStatusDto
+            {
+                IsPurchased = (device != null),
+                IsRegistered = (device?.MacAddress != "Pending Registration" && device != null),
+                IsActivated = device?.IsActive ?? false,
+                LastSyncAt = device?.LastSyncAt,
+                InstalledAt = device?.InstalledAt ?? DateTime.MinValue
+            };
+            return Ok(ApiResponse<UserDeviceStatusDto>.SuccessResponse(statusDto));
         }
 
         // GET: api/devices

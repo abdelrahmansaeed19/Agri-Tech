@@ -14,11 +14,13 @@ namespace AgriculturalTech.API.Controllers.API
     {
         private readonly IStripePaymentService _stripePaymentService;
         private readonly IUserSubscriptionRepository _userSubscriptionRepository;
+        private readonly ISensorDevicesRepository _sensorDevicesRepository;
 
-        public PaymentsController(IStripePaymentService stripePaymentService, IUserSubscriptionRepository userSubscriptionRepository)
+        public PaymentsController(IStripePaymentService stripePaymentService, IUserSubscriptionRepository userSubscriptionRepository, ISensorDevicesRepository sensorDevicesRepository)
         {
             _stripePaymentService = stripePaymentService;
             _userSubscriptionRepository = userSubscriptionRepository;
+            _sensorDevicesRepository = sensorDevicesRepository;
         }
 
         [HttpPost("subscribe")]
@@ -85,6 +87,11 @@ namespace AgriculturalTech.API.Controllers.API
             if (userId == null || userEmail == null)
             {
                 return Unauthorized(ApiResponse<string>.ErrorResponse("User information is missing."));
+            }
+
+            if(await _sensorDevicesRepository.IsDevicePurchasedByUserIdAsync(userId))
+            {
+                return BadRequest(ApiResponse<string>.ErrorResponse("User has already purchased the kit."));
             }
 
             try

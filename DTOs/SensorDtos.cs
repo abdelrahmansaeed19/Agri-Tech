@@ -21,6 +21,18 @@ public class SensorDeviceDto
     public bool IsActive { get; set; }
 }
 
+public class UserDeviceStatusDto
+{
+    public bool IsActivated { get; set; }
+    public bool IsPurchased { get; set; }
+    public bool IsRegistered { get; set; }
+    public DateTime? LastSyncAt { get; set; }
+    public DateTime InstalledAt { get; set; }
+
+
+    //public List<SensorReadingDto> RecentReadings { get; set; }
+}
+
 public class DeviceDto
 {
     public string Id { get; set; }
