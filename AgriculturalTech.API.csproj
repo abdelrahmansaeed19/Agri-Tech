@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Services\Resources\disease_info.xlsx" />
     <None Remove="Services\Resources\xception_plant_model_22.onnx" />
   </ItemGroup>
 
@@ -17,6 +18,9 @@
 	</PropertyGroup>
 
   <ItemGroup>
+    <Content Include="Services\Resources\disease_info.xlsx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Services\Resources\xception_plant_model_22.onnx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -26,6 +30,7 @@
     <PackageReference Include="AutoMapper" Version="15.0.1" />
     <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
     <PackageReference Include="CsvHelper" Version="33.1.0" />
+    <PackageReference Include="ExcelDataReader" Version="3.8.0" />
     <PackageReference Include="FirebaseAdmin" Version="3.4.0" />
     <PackageReference Include="MailKit" Version="4.14.1" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="8.0.21" />
@@ -58,9 +63,6 @@
 
   <ItemGroup>
     <None Update="Services\Resources\Crop_Recommendation_Pipeline.onnx">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Services\Resources\disease_info.xlsx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Services\Resources\Naive_Bayes.onnx">

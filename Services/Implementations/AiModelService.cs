@@ -2,6 +2,7 @@
 using AgriculturalTech.API.Services.Interfaces;
 using CsvHelper;
 using CsvHelper.Configuration;
+using ExcelDataReader;
 using Microsoft.ML.OnnxRuntime;
 using Microsoft.ML.OnnxRuntime.Tensors;
 using Org.BouncyCastle.Security;
@@ -52,46 +53,45 @@ namespace AgriculturalTech.API.Services.Implementations
 
             _diseaseInfo = new Dictionary<string, DiseaseInfoDto>(StringComparer.OrdinalIgnoreCase);
 
-            LoadCsvDataIntoMemory();
+            LoadExcelDataIntoMemory();
         }
 
-        private void LoadCsvDataIntoMemory()
+        private void LoadExcelDataIntoMemory()
         {
             string basePath = AppDomain.CurrentDomain.BaseDirectory;
-            string csvPath = Path.Combine(basePath, "Services/Resources", "disease_info.csv");
+            string excelPath = Path.Combine(basePath, "Services/Resources", "disease_info.xlsx");
 
-            if (!File.Exists(csvPath))
-                throw new FileNotFoundException($"CSV file not found at {csvPath}");
+            if (!File.Exists(excelPath))
+                throw new FileNotFoundException($"Excel file not found at {excelPath}");
 
-            var config = new CsvConfiguration(CultureInfo.InvariantCulture)
+            // Open the file as a stream
+            using var stream = File.Open(excelPath, FileMode.Open, FileAccess.Read);
+
+            // Create the Excel Reader
+            using var reader = ExcelReaderFactory.CreateReader(stream);
+
+            // 1. Read the first row (the Headers) to skip them
+            reader.Read();
+
+            // 2. Loop through all remaining rows
+            while (reader.Read())
             {
-                HasHeaderRecord = true,
-                MissingFieldFound = null // Ignores missing fields gracefully
-            };
-
-            using var reader = new StreamReader(csvPath);
-            using var csv = new CsvReader(reader, config);
-
-            // Read the CSV headers
-            csv.Read();
-            csv.ReadHeader();
-
-            while (csv.Read())
-            {
-                var diseaseName = csv.GetField<string>("disease_name")?.Trim();
+                // reader.GetString(columnIndex) grabs the data.
+                // Column 1 is "disease_name"
+                var diseaseName = reader.GetString(1)?.Trim();
 
                 if (string.IsNullOrEmpty(diseaseName)) continue;
 
                 var info = new DiseaseInfoDto
                 {
-                    Description = csv.GetField<string>("description"),
-                    PossibleSteps = csv.GetField<string>("Possible Steps"),
-                    DiseaseImageUrl = csv.GetField<string>("image_url"),
-                    SupplementName = csv.GetField<string>("supplement name"),
-                    SupplementImageUrl = csv.GetField<string>("supplement image")
+                    Description = reader.GetString(2),          // Column C
+                    PossibleSteps = reader.GetString(3),        // Column D
+                    DiseaseImageUrl = reader.GetString(4),      // Column E
+                    SupplementName = reader.GetString(5),       // Column F
+                    SupplementImageUrl = reader.GetString(6)    // Column G
                 };
 
-                // Add to dictionary. Using TryAdd prevents crashes if the CSV has duplicate rows
+                // Add to dictionary. TryAdd prevents crashes on duplicate rows.
                 _diseaseInfo.TryAdd(diseaseName, info);
             }
 
