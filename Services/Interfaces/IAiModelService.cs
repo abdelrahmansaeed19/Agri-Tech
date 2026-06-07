@@ -5,7 +5,9 @@ namespace AgriculturalTech.API.Services.Interfaces
 {
     public interface IAiModelService
     {
-        public Task<AIResponse> PredictAsync(Stream imageStream);
+        public Task<AIResponseDto> PredictAsync(Stream imageStream);
+
+        public Task<DiseaseInfoDto> GetDiseaseInfo(string diseaseName);
 
         public Task<DenseTensor<float>> PreprocessImage(Stream imageStream);
 

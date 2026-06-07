@@ -95,8 +95,8 @@ namespace AgriculturalTech.API.Controllers
             if (sensorDevice.IsActive)
                 return BadRequest(ApiResponse<SensorDeviceDto>.ErrorResponse("Already Activated Before"));
 
-            if (sensorDevice.Status != "Pending Activation")
-                return BadRequest(ApiResponse<SensorDeviceDto>.ErrorResponse("Please Connect Your Kit to Wifi!"));
+            if (sensorDevice.MacAddress != "Pending Registration")
+                return BadRequest(ApiResponse<SensorDeviceDto>.ErrorResponse("Please Connect Your Kit to Wifi to register it first!"));
 
 
             sensorDevice.Status = "Active";

@@ -3,7 +3,7 @@
 
 namespace AgriculturalTech.API.DTOs
 {
-    public class AIResponse
+    public class AIResponseDto
     {
         [JsonPropertyName("class")]
         public string ClassName { get; set; }
@@ -13,6 +13,20 @@ namespace AgriculturalTech.API.DTOs
 
         [JsonPropertyName("class_id")]
         public int ClassId { get; set; }
+    }
+
+    public class DiseaseInfoDto
+    {
+        public string Description { get; set; }
+        public string PossibleSteps { get; set; }
+        public string DiseaseImageUrl { get; set; }
+        public string SupplementName { get; set; }
+        public string SupplementImageUrl { get; set; }
+    }
+
+    public class  DiseaseInfoRequestDto
+    {
+        public string DiseaseName { get; set; }
     }
 
     public class CropRecommendationRequestDto

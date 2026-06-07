@@ -25,7 +25,7 @@ namespace AgriculturalTech.API.Controllers.API
 
         [Authorize]
         [HttpPost("upload_img")]
-        public async Task<ActionResult<ApiResponse<AIResponse>>> UploadImage(IFormFile image)
+        public async Task<ActionResult<ApiResponse<AIResponseDto>>> UploadImage(IFormFile image)
         {
             if (image == null || image.Length == 0)
             {
@@ -44,11 +44,11 @@ namespace AgriculturalTech.API.Controllers.API
             {
                 using var stream = image.OpenReadStream();
 
-                AIResponse aIResponse = await _modelService.PredictAsync(stream);
+                AIResponseDto aIResponse = await _modelService.PredictAsync(stream);
 
                 await _aiAuthorizationRepository.RecordSuccessfulScanAsync(userId);
 
-                return Ok(ApiResponse<AIResponse>.SuccessResponse(new AIResponse
+                return Ok(ApiResponse<AIResponseDto>.SuccessResponse(new AIResponseDto
                 {
                     ClassId = aIResponse.ClassId,
                     ClassName = aIResponse.ClassName,
@@ -60,6 +60,32 @@ namespace AgriculturalTech.API.Controllers.API
             catch (Exception ex)
             {
                 return BadRequest(ApiResponse<bool>.ErrorResponse("Error communicating with AI service", new List<string> { ex.Message }));
+            }
+        }
+
+
+        [Authorize]
+        [HttpPost("disease_info")]
+        public async Task<ActionResult<ApiResponse<DiseaseInfoDto>>> GetDiseaseInfo([FromBody] DiseaseInfoRequestDto request)
+        {
+            if (string.IsNullOrEmpty(request.DiseaseName))
+            {
+                return BadRequest("Disease name is required.");
+            }
+            try
+            {
+                DiseaseInfoDto diseaseInfo = await _modelService.GetDiseaseInfo(request.DiseaseName);
+
+                if (diseaseInfo == null)
+                {
+                    return NotFound("Disease information not found.");
+                }
+
+                return Ok(ApiResponse<DiseaseInfoDto>.SuccessResponse(diseaseInfo, "Disease information retrieved successfully"));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResponse<bool>.ErrorResponse("Error retrieving disease information", new List<string> { ex.Message }));
             }
         }
 
