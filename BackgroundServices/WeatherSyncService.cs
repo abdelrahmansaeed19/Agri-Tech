@@ -101,7 +101,7 @@ public class WeatherSyncService : BackgroundService
 
                         try
                         {
-                            await notificationService.SendNotificationAsync(user.FcmToken, "Heat Alert", $"High temperatures expected in on {forecast.Date:MMMM dd}. Stay hydrated and protect your crops!");
+                            await notificationService.SendNotificationAsync(user.FcmToken, "Heat Alert", $"High temperatures expected in on {todayForecast.Date:MMMM dd}. Stay hydrated and protect your crops!");
                         }
                         catch (Exception ex)
                         {
@@ -113,7 +113,7 @@ public class WeatherSyncService : BackgroundService
                     {
                         try
                         {
-                            await notificationService.SendNotificationAsync(user.FcmToken, "Cold Alert", $"Low temperatures expected in on {forecast.Date:MMMM dd}. Consider frost protection for your crops!");
+                            await notificationService.SendNotificationAsync(user.FcmToken, "Cold Alert", $"Low temperatures expected in on {todayForecast.Date:MMMM dd}. Consider frost protection for your crops!");
                         }
                         catch
                         {
