@@ -1,4 +1,5 @@
 using AgriculturalTech.API.Data;
+using AgriculturalTech.API.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 /// <summary>
@@ -8,7 +9,7 @@ public class WeatherSyncService : BackgroundService
 {
     private readonly ILogger<WeatherSyncService> _logger;
     private readonly IServiceProvider _serviceProvider;
-    private readonly TimeSpan _interval = TimeSpan.FromHours(6);
+    private readonly TimeSpan _interval = TimeSpan.FromMinutes(1);
 
     public WeatherSyncService(
         ILogger<WeatherSyncService> logger,
@@ -48,10 +49,12 @@ public class WeatherSyncService : BackgroundService
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         var weatherService = scope.ServiceProvider.GetRequiredService<IWeatherService>();
 
+        var notificationService = scope.ServiceProvider.GetRequiredService<INotificationService>();
+
         // Get unique user locations
         var userLocations = await context.Users
             .Where(u => u.IsActive && !string.IsNullOrEmpty(u.FarmLocation))
-            .Select(u => new { u.Id, u.FarmLocation })
+            .Select(u => new { u.Id, u.FarmLocation, u.FcmToken })
             .Distinct()
             .ToListAsync();
 
@@ -86,6 +89,36 @@ public class WeatherSyncService : BackgroundService
                         };
 
                         await context.WeatherForecasts.AddAsync(weatherForecast);
+                    }
+
+                    if(forecast.TemperatureMax > 35)
+                    {
+
+                        try
+                        {
+                            await notificationService.SendNotificationAsync(user.FcmToken, "Heat Alert", $"High temperatures expected in on {forecast.Date:MMMM dd}. Stay hydrated and protect your crops!");
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, $"Error sending heat alert notification to user {user.Id}");
+                        }
+
+                        // Send heat alert notification
+                        await weatherService.SyncWeatherAlertsAsync(user.Id, user.FarmLocation);
+                    }
+
+                    if(forecast.TemperatureMin <= 35)
+                    {
+                        try
+                        {
+                            await notificationService.SendNotificationAsync(user.FcmToken, "Cold Alert", $"Low temperatures expected in on {forecast.Date:MMMM dd}. Consider frost protection for your crops!");
+                        }
+                        catch
+                        {
+                            _logger.LogError($"Error sending cold alert notification to user {user.Id}");
+                        }
+                        // Send cold alert notification
+                        await weatherService.SyncWeatherAlertsAsync(user.Id, user.FarmLocation);
                     }
                 }
 

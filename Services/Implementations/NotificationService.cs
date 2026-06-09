@@ -28,7 +28,18 @@ namespace AgriculturalTech.API.Repositories.Implementations
                 {
                     { "click_action", "FLUTTER_NOTIFICATION_CLICK" },
                     { "type", "sensor_alert" }
-                }
+                },
+
+                Android = new AndroidConfig()
+                {
+                    Priority = Priority.High,
+                    Notification = new AndroidNotification()
+                    {
+                        ChannelId = "main_channel",
+                        Sound = "default",
+                        Color = "#FF0000"
+                    }
+                },
             };
 
             try
