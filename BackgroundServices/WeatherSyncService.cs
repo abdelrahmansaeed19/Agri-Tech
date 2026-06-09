@@ -9,7 +9,7 @@ public class WeatherSyncService : BackgroundService
 {
     private readonly ILogger<WeatherSyncService> _logger;
     private readonly IServiceProvider _serviceProvider;
-    private readonly TimeSpan _interval = TimeSpan.FromMinutes(1);
+    private readonly TimeSpan _interval = TimeSpan.FromHours(6);
 
     public WeatherSyncService(
         ILogger<WeatherSyncService> logger,
@@ -92,35 +92,35 @@ public class WeatherSyncService : BackgroundService
                     }
                 }
 
-                var todayForecast = forecasts.FirstOrDefault(f => f.Date.Date == DateTime.UtcNow.Date);
+                //var todayForecast = forecasts.FirstOrDefault(f => f.Date.Date == DateTime.UtcNow.Date);
 
-                if(todayForecast != null)
-                {
-                    if (todayForecast.TemperatureMax > 35)
-                    {
+                //if(todayForecast != null)
+                //{
+                //    if (todayForecast.TemperatureMax > 35)
+                //    {
 
-                        try
-                        {
-                            await notificationService.SendNotificationAsync(user.FcmToken, "Heat Alert", $"High temperatures expected in on {todayForecast.Date:MMMM dd}. Stay hydrated and protect your crops!");
-                        }
-                        catch (Exception ex)
-                        {
-                            _logger.LogError(ex, $"Error sending heat alert notification to user {user.Id}");
-                        }
-                    }
+                //        try
+                //        {
+                //            await notificationService.SendNotificationAsync(user.FcmToken, "Heat Alert", $"High temperatures expected in on {todayForecast.Date:MMMM dd}. Stay hydrated and protect your crops!");
+                //        }
+                //        catch (Exception ex)
+                //        {
+                //            _logger.LogError(ex, $"Error sending heat alert notification to user {user.Id}");
+                //        }
+                //    }
 
-                    if (todayForecast.TemperatureMin <= 35)
-                    {
-                        try
-                        {
-                            await notificationService.SendNotificationAsync(user.FcmToken, "Cold Alert", $"Low temperatures expected in on {todayForecast.Date:MMMM dd}. Consider frost protection for your crops!");
-                        }
-                        catch
-                        {
-                            _logger.LogError($"Error sending cold alert notification to user {user.Id}");
-                        }
-                    }
-                }
+                //    if (todayForecast.TemperatureMin <= 35)
+                //    {
+                //        try
+                //        {
+                //            await notificationService.SendNotificationAsync(user.FcmToken, "Cold Alert", $"Low temperatures expected in on {todayForecast.Date:MMMM dd}. Consider frost protection for your crops!");
+                //        }
+                //        catch
+                //        {
+                //            _logger.LogError($"Error sending cold alert notification to user {user.Id}");
+                //        }
+                //    }
+                //}
 
                 // Sync weather alerts
                 await weatherService.SyncWeatherAlertsAsync(user.Id, user.FarmLocation);
