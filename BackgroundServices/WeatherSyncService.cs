@@ -90,8 +90,13 @@ public class WeatherSyncService : BackgroundService
 
                         await context.WeatherForecasts.AddAsync(weatherForecast);
                     }
+                }
 
-                    if(forecast.TemperatureMax > 35)
+                var todayForecast = forecasts.FirstOrDefault(f => f.Date.Date == DateTime.UtcNow.Date);
+
+                if(todayForecast != null)
+                {
+                    if (todayForecast.TemperatureMax > 35)
                     {
 
                         try
@@ -102,12 +107,9 @@ public class WeatherSyncService : BackgroundService
                         {
                             _logger.LogError(ex, $"Error sending heat alert notification to user {user.Id}");
                         }
-
-                        // Send heat alert notification
-                        await weatherService.SyncWeatherAlertsAsync(user.Id, user.FarmLocation);
                     }
 
-                    if(forecast.TemperatureMin <= 35)
+                    if (todayForecast.TemperatureMin <= 35)
                     {
                         try
                         {
@@ -117,8 +119,6 @@ public class WeatherSyncService : BackgroundService
                         {
                             _logger.LogError($"Error sending cold alert notification to user {user.Id}");
                         }
-                        // Send cold alert notification
-                        await weatherService.SyncWeatherAlertsAsync(user.Id, user.FarmLocation);
                     }
                 }
 
