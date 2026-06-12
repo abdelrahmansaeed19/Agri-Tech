@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using AgriculturalTech.API.Data.Enums;
+using System.ComponentModel.DataAnnotations;
 
 namespace AgriculturalTech.API.DTOs
 {
@@ -8,5 +9,11 @@ namespace AgriculturalTech.API.DTOs
         public DateTime CurrentPeriodStart { get; set; }
         public DateTime CurrentPeriodEnd { get; set; }
         public bool IsCancelAtPeriodEnd { get; set; }
+    }
+
+    public class SubscriptionRequestDto
+    {
+        [Required]
+        public SubscriptionPlanType PlanType { get; set; }
     }
 }

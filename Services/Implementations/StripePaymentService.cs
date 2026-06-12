@@ -2,6 +2,7 @@
 using AgriculturalTech.API.Services.Interfaces;
 using Stripe.Checkout;
 using AgriculturalTech.API.Repositories.Interfaces;
+using AgriculturalTech.API.Data.Enums;
 
 namespace AgriculturalTech.API.Services.Implementations
 {
@@ -20,7 +21,18 @@ namespace AgriculturalTech.API.Services.Implementations
         }
 
 
-        public async Task<string> CreateSubscriptionCheckoutSessionAsync(string userId, string email)
+        private string _GetPriceId(SubscriptionPlanType enSubscriptionPlanType)
+        {
+            return enSubscriptionPlanType switch
+            {
+                SubscriptionPlanType.Monthly => "Stripe:1_month_plan_priceID",
+                SubscriptionPlanType.Quarterly => "Stripe:3_month_plan_priceID",
+                SubscriptionPlanType.Yearly => "Stripe:1_year_plan_priceID",
+                _ => throw new ArgumentException("Invalid subscription plan type")
+            };
+        }
+
+        public async Task<string> CreateSubscriptionCheckoutSessionAsync(string userId, string email, SubscriptionPlanType enSubscriptionPlanType)
         {
             var options = new SessionCreateOptions
             {
@@ -30,7 +42,7 @@ namespace AgriculturalTech.API.Services.Implementations
                 {
                     new SessionLineItemOptions
                     {
-                        Price = _config["Stripe:PremiumPlanPriceId"],
+                        Price = _config[_GetPriceId(enSubscriptionPlanType)],
                         Quantity = 1
                     },
                 },
@@ -100,5 +112,8 @@ namespace AgriculturalTech.API.Services.Implementations
 
             return session.Url;
         }
+
+        
+
     }
 }

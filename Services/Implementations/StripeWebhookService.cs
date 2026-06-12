@@ -118,14 +118,27 @@ namespace AgriculturalTech.API.Services.Implementations
 
             if (session.Mode == "subscription")
             {
+                var subService = new SubscriptionService();
+
+                var subscription = await subService.GetAsync(session.SubscriptionId);
+
+                var primaryItem = subscription.Items.Data.FirstOrDefault();
+
+                if (primaryItem == null)
+                {
+                    _logger.LogError($"No subscription items found for subscription ID: {subscription.Id}");
+
+                    return;
+                }
+
                 var newSubscription = new UserSubscription
                 {
                     UserId = userId,
                     StripeSubscriptionId = session.SubscriptionId,
                     StripeCustomerId = session.CustomerId,
                     SubscriptionStatus = ParseStripeSubscriptionStatus(enSubscriptionStatus.Active),
-                    CurrentPeriodStart = DateTime.UtcNow,
-                    CurrentPeriodEnd = DateTime.UtcNow.AddMonths(1), // Assuming a 1-month subscription
+                    CurrentPeriodStart = primaryItem.CurrentPeriodStart,
+                    CurrentPeriodEnd = primaryItem.CurrentPeriodEnd
                 };
 
                 _logger.LogInformation("==================================================");
@@ -226,17 +239,27 @@ namespace AgriculturalTech.API.Services.Implementations
 
             if (subscription != null)
             {
-                // Extend the subscription period by one month
-                
-                subscription.CurrentPeriodEnd = subscription.CurrentPeriodEnd.AddMonths(1);
+                // Extend the subscription 
 
-                _unitOfWork.UserSubscriptions.Update(subscription);
+                // 1. Fetch the updated subscription from Stripe to get the new future end date
 
-                await _unitOfWork.SaveChangesAsync();
+                var subscriptionService = new SubscriptionService();
+                var stripeSubscription = await subscriptionService.GetAsync(subId);
 
-                _logger.LogInformation("==================================================");
-                _logger.LogInformation($"DEBUG: Extended subscription period for subscription ID: {subscription.Id} due to invoice payment. New period end: {subscription.CurrentPeriodEnd}");
-                _logger.LogInformation("==================================================");
+                var primaryItem = stripeSubscription.Items.Data.FirstOrDefault();
+
+                if (primaryItem != null)
+                {
+                    subscription.CurrentPeriodEnd = primaryItem.CurrentPeriodEnd;
+
+                    _unitOfWork.UserSubscriptions.Update(subscription);
+
+                    await _unitOfWork.SaveChangesAsync();
+
+                    _logger.LogInformation("==================================================");
+                    _logger.LogInformation($"DEBUG: Extended subscription period for subscription ID: {subscription.Id} due to invoice payment. New period end: {subscription.CurrentPeriodEnd}");
+                    _logger.LogInformation("==================================================");
+                }
             }
             else 
             {

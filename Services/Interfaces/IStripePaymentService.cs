@@ -1,9 +1,10 @@
-﻿
+﻿using AgriculturalTech.API.Data.Enums;
+
 namespace AgriculturalTech.API.Services.Interfaces
 {
     public interface IStripePaymentService
     {
-        Task<string> CreateSubscriptionCheckoutSessionAsync(string userId, string email);
+        Task<string> CreateSubscriptionCheckoutSessionAsync(string userId, string email, SubscriptionPlanType enSubscriptionPlanType);
 
         Task<string> CreateKitCheckoutSessionAsync(string userId, string email);
 

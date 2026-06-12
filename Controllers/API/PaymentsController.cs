@@ -1,4 +1,5 @@
 ﻿using AgriculturalTech.API.DTOs;
+using AgriculturalTech.API.Data.Enums;
 using AgriculturalTech.API.Services.Interfaces;
 using AgriculturalTech.API.Repositories.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -24,7 +25,7 @@ namespace AgriculturalTech.API.Controllers.API
         }
 
         [HttpPost("subscribe")]
-        public async Task<ActionResult<ApiResponse<string>>> Subscribe()
+        public async Task<ActionResult<ApiResponse<string>>> Subscribe([FromBody] SubscriptionRequestDto requestDto)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var userEmail = User.FindFirstValue(ClaimTypes.Email);
@@ -44,7 +45,7 @@ namespace AgriculturalTech.API.Controllers.API
 
             try
             {
-                var resultUrl = await _stripePaymentService.CreateSubscriptionCheckoutSessionAsync(userId, userEmail);
+                var resultUrl = await _stripePaymentService.CreateSubscriptionCheckoutSessionAsync(userId, userEmail, requestDto.PlanType);
 
                 return Ok(ApiResponse<string>.SuccessResponse(resultUrl, "Subscription checkout session created successfully."));
             }
