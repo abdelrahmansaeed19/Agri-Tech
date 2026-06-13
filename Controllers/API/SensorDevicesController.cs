@@ -1,6 +1,7 @@
 using AgriculturalTech.API.Data.Models;
 using AgriculturalTech.API.DTOs;
 using AgriculturalTech.API.Repositories.Interfaces;
+using AgriculturalTech.API.Services.Interfaces;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -18,13 +19,15 @@ namespace AgriculturalTech.API.Controllers
         private readonly IMapper _mapper;
         private readonly ISensorDevicesRepository _sensorDevicesRepository;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly INotificationService _notificationService;
 
-        public SensorDevicesController(IUnitOfWork unitOfWork, IMapper mapper, ISensorDevicesRepository sensorDevicesRepository, UserManager<ApplicationUser> userManager)
+        public SensorDevicesController(IUnitOfWork unitOfWork, IMapper mapper, INotificationService notificationService, ISensorDevicesRepository sensorDevicesRepository, UserManager<ApplicationUser> userManager)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _sensorDevicesRepository = sensorDevicesRepository;
             _userManager = userManager;
+            _notificationService = notificationService;
         }
 
         // GET: api/sensordevices
@@ -147,6 +150,8 @@ namespace AgriculturalTech.API.Controllers
             _unitOfWork.SensorDevices.Update(pendingDevice);
 
             await _unitOfWork.SaveChangesAsync();
+
+            await _notificationService.SendNotificationAsync(user.FcmToken, "Registration Succeeded!", "Your Kit is Successfuly Registered, you can activate it in the app now!");
 
             var deviceDto = _mapper.Map<SensorDeviceDto>(pendingDevice);
 
