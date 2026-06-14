@@ -1,4 +1,5 @@
 ﻿using AgriculturalTech.API.Services.Interfaces;
+
 using FirebaseAdmin.Messaging;
 
 namespace AgriculturalTech.API.Repositories.Implementations
@@ -6,7 +7,7 @@ namespace AgriculturalTech.API.Repositories.Implementations
     public class NotificationService : INotificationService
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly ILogger _logger;
+        private readonly ILogger<NotificationService> _logger;
 
         public NotificationService(IUnitOfWork unitOfWork, ILogger logger)
         {
