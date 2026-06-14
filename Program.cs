@@ -164,6 +164,12 @@ builder.Services.AddHostedService<MarketPriceSyncService>();
 builder.Services.AddHostedService<PlantHealthMonitorService>();
 builder.Services.AddHostedService<DataCleanupService>();
 
+// ===================== LOCALIZATION =====================
+string basePath = AppDomain.CurrentDomain.BaseDirectory;
+string resourcesPath = Path.Combine(basePath, "Services/Resources");
+
+builder.Services.AddLocalization(options => options.ResourcesPath = "Services/Resources");
+
 // ===================== AUTOMAPPER =====================
 builder.Services.AddAutoMapper(cfg =>
 {
@@ -177,7 +183,8 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
         options.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
         options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
-    });
+    }).
+    AddDataAnnotationsLocalization();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 
@@ -218,6 +225,8 @@ builder.Services.AddSwaggerGen(c =>
             Array.Empty<string>()
         }
     });
+
+    c.OperationFilter<AcceptLanguageHeaderFilter>();
 });
 
 var app = builder.Build();
@@ -273,6 +282,16 @@ if (app.Environment.IsDevelopment() || true)
         c.RoutePrefix = "swagger";
     });
 }
+
+// ===================== REQUEST LOCALIZATION =====================
+var supportedCultures = new[] { "en", "ar" };
+var localizationOptions = new RequestLocalizationOptions()
+    .SetDefaultCulture("en")
+    .AddSupportedCultures(supportedCultures)
+    .AddSupportedUICultures(supportedCultures);
+
+// This middleware automatically reads the "Accept-Language" header!
+app.UseRequestLocalization(localizationOptions);
 
 //app.UseHttpsRedirection();
 

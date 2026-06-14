@@ -2,10 +2,12 @@
 using AgriculturalTech.API.DTOs;
 using AgriculturalTech.API.Services.Implementations;
 using AgriculturalTech.API.Services.Interfaces;
+using AgriculturalTech.API;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -23,17 +25,19 @@ namespace AgriculturalTech.API.Controllers
         private readonly IConfiguration _configuration;
         private readonly IExtendedEmailSender _emailSender;
         private readonly INotificationService _notificationService;
+        private readonly IStringLocalizer<SharedResources> _localizer;
 
         public AuthController(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
-            IConfiguration configuration, IExtendedEmailSender emailSender, INotificationService notificationService)
+            IConfiguration configuration, IExtendedEmailSender emailSender, INotificationService notificationService, IStringLocalizer<SharedResources> localizer)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _configuration = configuration;
             _emailSender = emailSender;
             _notificationService = notificationService;
+            _localizer = localizer;
         }
 
         [HttpPost("register")]
@@ -154,7 +158,7 @@ namespace AgriculturalTech.API.Controllers
                     FarmName = user.FarmName
                 };
 
-                return Ok(ApiResponse<LoginResponseDto>.SuccessResponse(response, "Login successful"));
+                return Ok(ApiResponse<LoginResponseDto>.SuccessResponse(response, _localizer["LoginSuccessNotificationBody", DateTime.UtcNow]));
             }
 
             return Unauthorized(ApiResponse<LoginResponseDto>.ErrorResponse("Invalid credentials"));
@@ -200,51 +204,52 @@ namespace AgriculturalTech.API.Controllers
             {
                 await _userManager.UpdateAsync(user);
 
-                var title = "Login Notification";
+                var title = _localizer["LoginSuccessNotificationTitle"];
 
-                var body = $"You have successfully logged in at {DateTime.UtcNow}";
-
-                await _notificationService.SendNotificationAsync(user.FcmToken, title, body);
-
-                return Ok(ApiResponse<string>.SuccessResponse(user.FcmToken, "FCM token updated , Notification sent successfully!"));
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ApiResponse<string>.ErrorResponse("Failed to update FCM token", new List<string> { ex.Message }));
-            }
-        }
-
-        [HttpPost("send-login-notification")]
-        [Authorize]
-        public async Task<ActionResult<ApiResponse<string>>> SendLoginNotification()
-        {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            if (userId == null)
-                return Unauthorized(ApiResponse<string>.ErrorResponse("User Not Logged in."));
-
-            var user = await _userManager.FindByIdAsync(userId);
-
-            if (user == null) return NotFound(ApiResponse<string>.ErrorResponse("User not found."));
-
-            if (string.IsNullOrEmpty(user.FcmToken))
-                return BadRequest(ApiResponse<string>.ErrorResponse("FCM token not found for the user."));
-
-            try
-            {
-                var title = "Login Notification";
-
-                var body = $"You have successfully logged in at {DateTime.UtcNow}";
+                var body = _localizer["LoginSuccessNotificationBody", DateTime.UtcNow]
+                ;
 
                 await _notificationService.SendNotificationAsync(user.FcmToken, title, body);
 
-                return Ok(ApiResponse<string>.SuccessResponse("", "Login notification sent successfully"));
+                return Ok(ApiResponse<string>.SuccessResponse(user.FcmToken, _localizer["fcmUpdateSuccessMessage"]));
             }
             catch (Exception ex)
             {
-                return BadRequest(ApiResponse<string>.ErrorResponse("Failed to send login notification", new List<string> { ex.Message }));
+                return BadRequest(ApiResponse<string>.ErrorResponse(_localizer["fcmUpdateFailMessage"], new List<string> { ex.Message }));
             }
         }
+
+        //[HttpPost("send-login-notification")]
+        //[Authorize]
+        //public async Task<ActionResult<ApiResponse<string>>> SendLoginNotification()
+        //{
+        //    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        //    if (userId == null)
+        //        return Unauthorized(ApiResponse<string>.ErrorResponse("User Not Logged in."));
+
+        //    var user = await _userManager.FindByIdAsync(userId);
+
+        //    if (user == null) return NotFound(ApiResponse<string>.ErrorResponse("User not found."));
+
+        //    if (string.IsNullOrEmpty(user.FcmToken))
+        //        return BadRequest(ApiResponse<string>.ErrorResponse("FCM token not found for the user."));
+
+        //    try
+        //    {
+        //        var title = "Login Notification";
+
+        //        var body = $"You have successfully logged in at {DateTime.UtcNow}";
+
+        //        await _notificationService.SendNotificationAsync(user.FcmToken, title, body);
+
+        //        return Ok(ApiResponse<string>.SuccessResponse("", "Login notification sent successfully"));
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest(ApiResponse<string>.ErrorResponse("Failed to send login notification", new List<string> { ex.Message }));
+        //    }
+        //}
 
         private string GenerateJwtToken(ApplicationUser user)
         {
