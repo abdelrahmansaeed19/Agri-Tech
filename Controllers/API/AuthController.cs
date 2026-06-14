@@ -206,8 +206,7 @@ namespace AgriculturalTech.API.Controllers
 
                 var title = _localizer["LoginSuccessNotificationTitle"];
 
-                var body = _localizer["LoginSuccessNotificationBody", DateTime.UtcNow]
-                ;
+                var body = _localizer["LoginSuccessNotificationBody", DateTime.UtcNow];
 
                 await _notificationService.SendNotificationAsync(user.FcmToken, title, body);
 

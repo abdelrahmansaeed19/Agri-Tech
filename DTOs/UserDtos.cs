@@ -16,4 +16,10 @@ namespace AgriculturalTech.API.DTOs
         [Required]
         public SubscriptionPlanType PlanType { get; set; }
     }
+
+    public class UpdatePreferredLanguageDto
+    {
+        [Required]
+        public string PreferredLanguage { get; set; }
+    }
 }

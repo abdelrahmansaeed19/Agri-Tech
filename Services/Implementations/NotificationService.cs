@@ -6,10 +6,12 @@ namespace AgriculturalTech.API.Repositories.Implementations
     public class NotificationService : INotificationService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly ILogger _logger;
 
-        public NotificationService(IUnitOfWork unitOfWork)
+        public NotificationService(IUnitOfWork unitOfWork, ILogger logger)
         {
             _unitOfWork = unitOfWork;
+            _logger = logger;
         }
         public async Task SendNotificationAsync(string fcmToken, string title, string body)
         {
@@ -46,10 +48,18 @@ namespace AgriculturalTech.API.Repositories.Implementations
             {
                 string response = await FirebaseMessaging.DefaultInstance.SendAsync(message);
                 Console.WriteLine("Successfully sent message: " + response);
+
+                _logger.LogInformation("==================================================");
+                _logger.LogInformation($"Notification sent successfully to token: {fcmToken}, Title: {title}, Body: {body}");
+                _logger.LogInformation("==================================================");
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Error sending FCM notification: " + ex.Message);
+
+                _logger.LogInformation("==================================================");
+                _logger.LogError($"Error sending notification to token: {fcmToken}, Title: {title}, Body: {body}. Exception: {ex.Message}");
+                _logger.LogInformation("==================================================");
             }
         }
 
