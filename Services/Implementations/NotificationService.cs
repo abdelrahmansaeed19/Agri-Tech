@@ -9,7 +9,7 @@ namespace AgriculturalTech.API.Repositories.Implementations
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<NotificationService> _logger;
 
-        public NotificationService(IUnitOfWork unitOfWork, ILogger logger)
+        public NotificationService(IUnitOfWork unitOfWork, ILogger<NotificationService> logger)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
