@@ -12,13 +12,17 @@ namespace AgriculturalTech.API.Services.Implementations
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IAiAuthorizationRepository _authorizationRepository;
+        private readonly IUserSubscriptionRepository _userSubscriptionRepository;
         private readonly string _stripeWebhookSecret;
         private readonly ILogger<StripeWebhookService> _logger;
+        private readonly INotificationService _notificationService;
 
-        public StripeWebhookService(IUnitOfWork unitOfWork, IConfiguration config, IAiAuthorizationRepository aiAuthorizationRepository, ILogger<StripeWebhookService> logger)
+        public StripeWebhookService(IUnitOfWork unitOfWork, IConfiguration config, IAiAuthorizationRepository aiAuthorizationRepository, IUserSubscriptionRepository userSubscriptionRepository, INotificationService notificationService, ILogger<StripeWebhookService> logger)
         {
             _unitOfWork = unitOfWork;
             _authorizationRepository = aiAuthorizationRepository;
+            _userSubscriptionRepository = userSubscriptionRepository;
+            _notificationService = notificationService;
             _stripeWebhookSecret = config["Stripe:WebhookSecret"];
             _logger = logger;
         }
@@ -131,25 +135,47 @@ namespace AgriculturalTech.API.Services.Implementations
                     return;
                 }
 
-                var newSubscription = new UserSubscription
+                var sub = await _userSubscriptionRepository.GetSubscriptionByUserIdAsync(subscription.Id);
+
+
+                if (sub != null)
                 {
-                    UserId = userId,
-                    StripeSubscriptionId = session.SubscriptionId,
-                    StripeCustomerId = session.CustomerId,
-                    SubscriptionStatus = ParseStripeSubscriptionStatus(enSubscriptionStatus.Active),
-                    CurrentPeriodStart = primaryItem.CurrentPeriodStart,
-                    CurrentPeriodEnd = primaryItem.CurrentPeriodEnd
-                };
+                    sub.StripeSubscriptionId = subscription.Id;
+                    sub.StripeCustomerId = subscription.CustomerId;
+                    sub.SubscriptionStatus = ParseStripeSubscriptionStatus(enSubscriptionStatus.Active);
+                    sub.CurrentPeriodStart = primaryItem.CurrentPeriodStart;
+                    sub.CurrentPeriodEnd = primaryItem.CurrentPeriodEnd;
 
-                _logger.LogInformation("==================================================");
-                _logger.LogInformation($"DEBUG: Creating new subscription for user ID: {userId} with Stripe subscription ID: {newSubscription.StripeSubscriptionId}");
-                _logger.LogInformation("==================================================");
+                    _logger.LogInformation("==================================================");
+                    _logger.LogInformation($"Updating existing subscription for user ID: {userId} with Stripe subscription ID: {subscription.Id}");
+                    _logger.LogInformation("==================================================");
 
-                await _unitOfWork.UserSubscriptions.AddAsync(newSubscription);
+                    await _userSubscriptionRepository.UpdateSubscriptionAsync(sub);
+                }
+                else
+                {
+                    var newSubscription = new UserSubscription
+                    {
+                        UserId = userId,
+                        StripeSubscriptionId = session.SubscriptionId,
+                        StripeCustomerId = session.CustomerId,
+                        SubscriptionStatus = ParseStripeSubscriptionStatus(enSubscriptionStatus.Active),
+                        CurrentPeriodStart = primaryItem.CurrentPeriodStart,
+                        CurrentPeriodEnd = primaryItem.CurrentPeriodEnd
+                    };
 
-                await _unitOfWork.SaveChangesAsync();
+                    _logger.LogInformation("==================================================");
+                    _logger.LogInformation($"DEBUG: Creating new subscription for user ID: {userId} with Stripe subscription ID: {newSubscription.StripeSubscriptionId}");
+                    _logger.LogInformation("==================================================");
+
+                    await _unitOfWork.UserSubscriptions.AddAsync(newSubscription);
+
+                    await _unitOfWork.SaveChangesAsync();
+                }
 
                 await _authorizationRepository.ToggleUserPremium(userId);  // Grant premium access immediately upon successful subscription
+
+                await _notificationService.SendNotificationAsync(userId, "Subscription Activated", "Your subscription has been successfully activated. Enjoy your premium features!");
             }
             else if (session.Mode == "payment")
             {
@@ -169,6 +195,8 @@ namespace AgriculturalTech.API.Services.Implementations
                     await _unitOfWork.SensorDevices.AddAsync(newDevice);
 
                     await _unitOfWork.SaveChangesAsync();
+
+                    await _notificationService.SendNotificationAsync(userId, "Device Purchase Successful", "Your device purchase was successful.");
                 }
                 else
                 {
@@ -227,6 +255,8 @@ namespace AgriculturalTech.API.Services.Implementations
                 await _unitOfWork.SaveChangesAsync();
 
                 await _authorizationRepository.ToggleUserPremium(subscription.UserId);  // Revoke premium access immediately upon subscription cancellation
+
+                await _notificationService.SendNotificationAsync(subscription.UserId, "Subscription Canceled", "Your subscription has been canceled. If this was a mistake, please contact support to reactivate your subscription.");
             }
         }
 
@@ -255,6 +285,8 @@ namespace AgriculturalTech.API.Services.Implementations
                     _unitOfWork.UserSubscriptions.Update(subscription);
 
                     await _unitOfWork.SaveChangesAsync();
+
+                    await _notificationService.SendNotificationAsync(subscription.UserId, "Subscription Extended", "Your subscription has been extended for another billing cycle. Thank you for your continued support!");
 
                     _logger.LogInformation("==================================================");
                     _logger.LogInformation($"DEBUG: Extended subscription period for subscription ID: {subscription.Id} due to invoice payment. New period end: {subscription.CurrentPeriodEnd}");

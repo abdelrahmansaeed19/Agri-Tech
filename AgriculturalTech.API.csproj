@@ -64,10 +64,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="BackgroundServices\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <EmbeddedResource Update="Services\Resources\SharedResources.ar.resx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>

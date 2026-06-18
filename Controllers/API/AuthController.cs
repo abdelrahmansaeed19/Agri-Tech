@@ -26,11 +26,12 @@ namespace AgriculturalTech.API.Controllers
         private readonly IExtendedEmailSender _emailSender;
         private readonly INotificationService _notificationService;
         private readonly IStringLocalizer<SharedResources> _localizer;
+        private readonly ILogger<AuthController> _logger;
 
         public AuthController(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
-            IConfiguration configuration, IExtendedEmailSender emailSender, INotificationService notificationService, IStringLocalizer<SharedResources> localizer)
+            IConfiguration configuration, IExtendedEmailSender emailSender, INotificationService notificationService, IStringLocalizer<SharedResources> localizer, ILogger<AuthController> logger)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -38,6 +39,7 @@ namespace AgriculturalTech.API.Controllers
             _emailSender = emailSender;
             _notificationService = notificationService;
             _localizer = localizer;
+            _logger = logger;
         }
 
         [HttpPost("register")]

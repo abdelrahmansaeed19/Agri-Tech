@@ -14,6 +14,7 @@ namespace AgriculturalTech.API.Data
         // ===================== DBSETS =====================
         public DbSet<CropType> CropTypes { get; set; }
         public DbSet<UserPlant> UserPlants { get; set; }
+        public DbSet<UserSubscription> UserSubscriptions { get; set; }
         public DbSet<CropDisease> CropDiseases { get; set; }
         public DbSet<DiseaseDetectionLog> DiseaseDetectionLogs { get; set; }
         public DbSet<Device> Devices { get; set; }

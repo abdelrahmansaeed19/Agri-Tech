@@ -195,10 +195,10 @@ namespace AgriculturalTech.API.Controllers
             return Ok(ApiResponse<bool>.SuccessResponse(true, "Reading recorded successfully"));
         }
 
-        // GET: api/sensordevices/readings
-        [HttpGet("readings")]
+        // GET: api/sensordevices/latest-reading
+        [HttpGet("latest-reading")]
         [Authorize]
-        public async Task<ActionResult<ApiResponse<List<SensorReadingDto>>>> GetDeviceReadings()
+        public async Task<ActionResult<ApiResponse<SensorReadingDto>>> GetDeviceReadings()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
@@ -206,13 +206,13 @@ namespace AgriculturalTech.API.Controllers
                 .FirstOrDefaultAsync(d => d.UserId == userId);
 
             if (sensorDevice == null)
-                return NotFound(ApiResponse<List<SensorReadingDto>>.ErrorResponse("Device not found"));
+                return NotFound(ApiResponse<SensorReadingDto>.ErrorResponse("Device not found"));
 
-            var readings = await _unitOfWork.SensorReadings.GetLatestReadingsByDeviceAsync(sensorDevice.Id, 10);
+            var readings = await _unitOfWork.SensorReadings.GetLatestReadingAsync(sensorDevice.Id);
 
-            var readingDtos = _mapper.Map<List<SensorReadingDto>>(readings);
+            var readingDtos = _mapper.Map<SensorReadingDto>(readings);
 
-            return Ok(ApiResponse<List<SensorReadingDto>>.SuccessResponse(readingDtos));
+            return Ok(ApiResponse<SensorReadingDto>.SuccessResponse(readingDtos));
         }
 
         // GET: api/sensordevices/{id}/statistics

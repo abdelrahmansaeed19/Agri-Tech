@@ -32,7 +32,7 @@ namespace AgriculturalTech.API.Controllers.API
 
             var sub = await _userSubscriptionRepository.GetSubscriptionByUserIdAsync(userId);
 
-            if(sub != null)
+            if(sub != null && sub.SubscriptionStatus == "active")
             {
 
                 if (sub.CancelAtPeriodEnd)
