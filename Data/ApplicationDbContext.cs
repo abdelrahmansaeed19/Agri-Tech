@@ -148,6 +148,8 @@ namespace AgriculturalTech.API.Data
             // ===================== USER SUBSCRIPTION CONFIGURATION =====================
             builder.Entity<UserSubscription>(entity =>
             {
+                entity.ToTable("UserSubscription");
+
                 entity.HasOne(d => d.User)
                     .WithMany(p => p.UserSubscriptions)
                     .HasForeignKey(d => d.UserId)
