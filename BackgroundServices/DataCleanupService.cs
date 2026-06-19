@@ -68,18 +68,18 @@ public class DataCleanupService : BackgroundService
             _logger.LogInformation($"Deleted {oldSensorReadings} old sensor readings");
         }
 
-        // Delete activity logs older than 180 days
-        var activityLogCutoff = DateTime.UtcNow.AddDays(-180);
-        var oldActivityLogs = await context.ActivityLogs
-            .Where(l => l.CreatedAt < activityLogCutoff)
-            .CountAsync();
+        //// Delete activity logs older than 180 days
+        //var activityLogCutoff = DateTime.UtcNow.AddDays(-180);
+        //var oldActivityLogs = await context.ActivityLogs
+        //    .Where(l => l.CreatedAt < activityLogCutoff)
+        //    .CountAsync();
 
-        if (oldActivityLogs > 0)
-        {
-            await context.Database.ExecuteSqlRawAsync(
-                "DELETE FROM ActivityLogs WHERE CreatedAt < {0}", activityLogCutoff);
-            _logger.LogInformation($"Deleted {oldActivityLogs} old activity logs");
-        }
+        //if (oldActivityLogs > 0)
+        //{
+        //    await context.Database.ExecuteSqlRawAsync(
+        //        "DELETE FROM ActivityLogs WHERE CreatedAt < {0}", activityLogCutoff);
+        //    _logger.LogInformation($"Deleted {oldActivityLogs} old activity logs");
+        //}
 
         // Delete read notifications older than 30 days
         var notificationCutoff = DateTime.UtcNow.AddDays(-30);

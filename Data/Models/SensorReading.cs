@@ -49,6 +49,6 @@ public class SensorReading
     [ForeignKey("SensorDeviceId")]
     public virtual SensorDevice SensorDevice { get; set; }
 
-    [ForeignKey("UserPlantId")]
-    public virtual UserPlant UserPlant { get; set; }
+    //[ForeignKey("UserPlantId")]
+    //public virtual UserPlant UserPlant { get; set; }
 }

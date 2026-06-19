@@ -69,17 +69,17 @@ namespace AgriculturalTech.API.Controllers
             return Ok(ApiResponse<UserDeviceStatusDto>.SuccessResponse(statusDto));
         }
 
-        // GET: api/devices
-        [HttpGet("devices")]
-        [Authorize]
-        public async Task<ActionResult<ApiResponse<List<DeviceDto>>>> GetAllDevices()
-        {
-            var devices = await _unitOfWork.Devices.GetAllAsync();
+        //// GET: api/devices
+        //[HttpGet("devices")]
+        //[Authorize]
+        //public async Task<ActionResult<ApiResponse<List<DeviceDto>>>> GetAllDevices()
+        //{
+        //    var devices = await _unitOfWork.Devices.GetAllAsync();
 
-            var deviceDtos = _mapper.Map<List<DeviceDto>>(devices);
+        //    var deviceDtos = _mapper.Map<List<DeviceDto>>(devices);
 
-            return Ok(ApiResponse<List<DeviceDto>>.SuccessResponse(deviceDtos));
-        }
+        //    return Ok(ApiResponse<List<DeviceDto>>.SuccessResponse(deviceDtos));
+        //}
 
         // POST: api/sensordevices
         [HttpPost("activate-device")]
@@ -155,7 +155,7 @@ namespace AgriculturalTech.API.Controllers
 
             var deviceDto = _mapper.Map<SensorDeviceDto>(pendingDevice);
 
-            return CreatedAtAction(nameof(GetAllDevices), new { id = pendingDevice.Id },
+            return CreatedAtAction("Registration", new { id = pendingDevice.Id },
                 ApiResponse<SensorDeviceDto>.SuccessResponse(deviceDto, "Device registered successfully, pending assignment"));
         }
 

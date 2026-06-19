@@ -141,12 +141,12 @@ builder.Services.AddScoped<IAiAuthorizationRepository, AiAuthorizationRepository
 builder.Services.AddScoped<ISensorDevicesRepository, SensorDevicesRepository>();
 
 // ===================== SERVICES =====================
-builder.Services.AddScoped<IFertilizerService, FertilizerService>();
-builder.Services.AddScoped<IDiseaseDetectionService, DiseaseDetectionService>();
-builder.Services.AddScoped<IMarketPriceService, MarketPriceService>();
+//builder.Services.AddScoped<IFertilizerService, FertilizerService>();
+//builder.Services.AddScoped<IDiseaseDetectionService, DiseaseDetectionService>();
+//builder.Services.AddScoped<IMarketPriceService, MarketPriceService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IImageStorageService, ImageStorageService>();
-builder.Services.AddScoped<IActivityLogService, ActivityLogService>();
+//builder.Services.AddScoped<IActivityLogService, ActivityLogService>();
 builder.Services.AddScoped<IStripePaymentService, StripePaymentService>();
 builder.Services.AddScoped<IStripeWebhookService, StripeWebhookService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
@@ -158,10 +158,10 @@ builder.Services.AddSingleton<IAiCropRecommendationService, AiCropRecommendation
 builder.Services.AddHttpClient<IWeatherService, WeatherService>();
 
 // ===================== BACKGROUND SERVICES =====================
-builder.Services.AddHostedService<ReminderNotificationService>();
+//builder.Services.AddHostedService<ReminderNotificationService>();
 builder.Services.AddHostedService<WeatherSyncService>();
 builder.Services.AddHostedService<MarketPriceSyncService>();
-builder.Services.AddHostedService<PlantHealthMonitorService>();
+//builder.Services.AddHostedService<PlantHealthMonitorService>();
 builder.Services.AddHostedService<DataCleanupService>();
 
 // ===================== LOCALIZATION =====================

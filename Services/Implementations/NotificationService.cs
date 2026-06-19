@@ -64,22 +64,22 @@ namespace AgriculturalTech.API.Repositories.Implementations
             }
         }
 
-        public async Task SendReminderNotificationAsync(string userId, CropReminder reminder)
-        {
-            var notification = new Notification
-            {
-                UserId = userId,
-                NotificationType = "Reminder",
-                Title = $"Reminder: {reminder.Title}",
-                Message = reminder.Description ?? $"It's time for: {reminder.ReminderType}",
-                ActionLink = $"/plants/{reminder.UserPlantId}"
-            };
+        //public async Task SendReminderNotificationAsync(string userId, CropReminder reminder)
+        //{
+        //    var notification = new Notification
+        //    {
+        //        UserId = userId,
+        //        NotificationType = "Reminder",
+        //        Title = $"Reminder: {reminder.Title}",
+        //        Message = reminder.Description ?? $"It's time for: {reminder.ReminderType}",
+        //        ActionLink = $"/plants/{reminder.UserPlantId}"
+        //    };
 
-            await _unitOfWork.Notifications.AddAsync(notification);
-            await _unitOfWork.SaveChangesAsync();
+        //    await _unitOfWork.Notifications.AddAsync(notification);
+        //    await _unitOfWork.SaveChangesAsync();
 
-            // TODO: Send push notification via Firebase/SignalR
-        }
+        //    // TODO: Send push notification via Firebase/SignalR
+        //}
 
         public async Task SendAlertNotificationAsync(string userId, string title, string message)
         {

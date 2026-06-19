@@ -38,5 +38,5 @@ public class SensorDevice
     // Navigation Properties
     public virtual ICollection<SensorReading> SensorReadings { get; set; } = new List<SensorReading>();
 
-    public virtual ICollection<UserPlant> UserPlant { get; set; } = new List<UserPlant>();
+    //public virtual ICollection<UserPlant> UserPlant { get; set; } = new List<UserPlant>();
 }

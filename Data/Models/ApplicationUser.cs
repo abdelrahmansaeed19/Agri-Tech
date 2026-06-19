@@ -33,8 +33,8 @@ namespace AgriculturalTech.API.Data.Models
         public bool IsActive { get; set; } = true;
 
         // Navigation Properties
-        public virtual ICollection<UserPlant> UserPlants { get; set; }
-        public virtual ICollection<CropReminder> CropReminders { get; set; }
+        //public virtual ICollection<UserPlant> UserPlants { get; set; }
+        //public virtual ICollection<CropReminder> CropReminders { get; set; }
         public virtual ICollection<WeatherAlert> WeatherAlerts { get; set; }
         public virtual ICollection<SensorDevice> SensorDevices { get; set; }
         public virtual ICollection<UserSubscription> UserSubscriptions { get; set; }
